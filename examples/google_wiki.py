@@ -10,21 +10,36 @@ Title
 
 =中文  aaaa=
 
-as *df*
-asd_fds_f
+_italic_ 
+*bold*
+`code`
+{{{code}}}
+^super^script
+,,sub,,script
+~~strikeout~~
 
-af
-asdfs
-ddsf
+{{{
+code line
+}}}
+
+-----
+
+_*bold* in italics_
+*_italics_ in bold*
+*~~strike~~ works too*
+~~as well as _this_ way round~~
 
 """
 
 g = WikiGrammar()
 
 result, rest = g.parse(text, skipWS=False)
-#result, rest = parseLine('asd', words, skipWS=False)
+#result, rest = g.parse('''{{{
+#code line
+#}}}
+#''', g['pre'], skipWS=False)
 print result
 print '--', rest, '--'
 #print result[0].text
 #print SimpleVisitor().visit(result).encode('gbk')
-print WikiHtmlVisitor().visit(result)
+print WikiHtmlVisitor().template(result)
