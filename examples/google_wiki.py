@@ -8,7 +8,12 @@ text = """
 Title
 =============
 
-=中文  aaaa=
+= Title1 =
+== Title2 ==
+=== Title3 ===
+==== Title4 ====
+===== Title5 =====
+====== Title6 ======
 
 _italic_ 
 *bold*
@@ -29,17 +34,20 @@ _*bold* in italics_
 *~~strike~~ works too*
 ~~as well as _this_ way round~~
 
+|| *Test1* || aaaaa1||
+|| Test2 || aaaaa2||
 """
 
 g = WikiGrammar()
 
 result, rest = g.parse(text, skipWS=False)
-#result, rest = g.parse('''{{{
-#code line
-#}}}
-#''', g['pre'], skipWS=False)
+#result, rest = g.parse(''' Test1 ||''', g['table_column'], skipWS=False)
+
 print result
-print '--', rest, '--'
+print '======', rest
+print result[0].render()
+#print '--', rest, '--'
 #print result[0].text
 #print SimpleVisitor().visit(result).encode('gbk')
 print WikiHtmlVisitor().template(result)
+

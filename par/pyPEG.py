@@ -36,6 +36,19 @@ class Symbol(list):
         return u'Symbol<' + repr(self.__name__) + '>: ' + repr(self.what)
     def __repr__(self):
         return unicode(self)
+    def render(self, index=0):
+        if isinstance(self.what, (str, unicode)):
+            return ' '*2*index+'%s:%r\n' % (self.__name__, self.what)
+        else:
+            buf = []
+            buf.append(' '*2*index+'%s:\n' % self.__name__)
+            for x in self.what:
+                if isinstance(x, (str, unicode)):
+                    buf.append(' '*4*(index+1)+':%r\n' % x)
+                else:
+                    buf.append(x.render(index+1))
+        return ''.join(buf)
+        
     @property
     def text(self):
         buf = []
