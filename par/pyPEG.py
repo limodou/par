@@ -52,11 +52,14 @@ class Symbol(list):
     @property
     def text(self):
         buf = []
-        for node in self.what:
-            if isinstance(node, (str, unicode)):
-                buf.append(node)
-            else:
-                buf.append(node.text)
+        if isinstance(self.what, (str, unicode)):
+            buf.append(self.what)
+        else:
+            for node in self.what:
+                if isinstance(node, (str, unicode)):
+                    buf.append(node)
+                else:
+                    buf.append(node.text)
         return ''.join(buf)
 
 word_regex = re.compile(ur"\w+")
