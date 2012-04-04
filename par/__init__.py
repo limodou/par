@@ -10,6 +10,12 @@ from pyPEG import *
 import re
 import types
 
+__author__ = 'limodou'
+__author_email__ = 'limodou@gmail.com'
+__url__ = 'https://github.com/limodou/par'
+__license__ = 'GPL'
+__version__ = '0.1'
+
 _ = re.compile
 
 class WikiGrammar(dict):
@@ -96,6 +102,10 @@ class WikiGrammar(dict):
         return peg_rules, article
     
     def parse(self, text, root=None, skipWS=False, **kwargs):
+        if not text:
+            return ''
+        if text[-1] not in ('\r', '\n'):
+            text = text + '\n'
         return parseLine(text, root or self.root, skipWS=skipWS, **kwargs)
         
 class SimpleVisitor(object):
