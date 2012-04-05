@@ -24,7 +24,7 @@ tag_class = {
     'table':'',
 }
 
-text = """
+text = u"""
 = Wiki语法说明 =
 == 标题 ==
 {{{
@@ -241,6 +241,6 @@ result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
 #print resultSoFar[0].render()
 #print '====== render ======'
 #print result[0].render()
-#print SimpleVisitor().visit(result).encode('gbk')
-print WikiHtmlVisitor(template, tag_class).template(result)
+print SimpleVisitor().visit(result).encode('gbk')
+#print WikiHtmlVisitor(template, tag_class).template(result)
 

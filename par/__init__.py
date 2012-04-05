@@ -51,32 +51,32 @@ class WikiGrammar(dict):
         def paragraph(): return -2, line, -1, blankline
     
         #pre
-        def pre_alt(): return '<code>', _(r'.+?(?=</code>)', re.M|re.DOTALL), '</code>', -2, blankline
-        def pre_normal(): return '{{{', 0, space, eol, _(r'.+?(?=\}\}\})', re.M|re.DOTALL), '}}}', -2, blankline
+        def pre_alt(): return _(r'<code>'), _(r'.+?(?=</code>)', re.M|re.DOTALL), _(r'</code>'), -2, blankline
+        def pre_normal(): return _(r'\{\{\{'), 0, space, eol, _(r'.+?(?=\}\}\})', re.M|re.DOTALL), _(r'\}\}\}'), -2, blankline
         def pre(): return [pre_alt, pre_normal]
     
         
         #subject
         def title_text(): return _(r'.+(?= =)', re.U)
 #        def subject(): return _(r'\s*.*'), eol, _(r'(?:=|-){4,}'), -2, eol
-        def title1(): return '= ', title_text, ' =', -2, eol
-        def title2(): return '== ', title_text, ' ==', -2, eol
-        def title3(): return '=== ', title_text, ' ===', -2, eol
-        def title4(): return '==== ', title_text, ' ====', -2, eol
-        def title5(): return '===== ', title_text, ' =====', -2, eol
-        def title6(): return '====== ', title_text, ' ======', -2, eol
+        def title1(): return _(r'= '), title_text, _(r' ='), -2, eol
+        def title2(): return _(r'== '), title_text, _(r' =='), -2, eol
+        def title3(): return _(r'=== '), title_text, _(r' ==='), -2, eol
+        def title4(): return _(r'==== '), title_text, _(r' ===='), -2, eol
+        def title5(): return _(r'===== '), title_text, _(r' ====='), -2, eol
+        def title6(): return _(r'====== '), title_text, _(r' ======'), -2, eol
         def title(): return [title6, title5, title4, title3, title2, title1]
     
         #table
-        def table_column(): return -2, [space, escape_string, code_string_short, code_string, op, link, _(r'[^\\\*_\^~ \t\r\n`,\|]+', re.U)], '||'
-        def table_line(): return '||', -2, table_column, eol
+        def table_column(): return -2, [space, escape_string, code_string_short, code_string, op, link, _(r'[^\\\*_\^~ \t\r\n`,\|]+', re.U)], _(r'\|\|')
+        def table_line(): return _(r'\|\|'), -2, table_column, eol
         def table(): return -2, table_line, -1, blankline
     
         #lists
         def list_leaf_content(): return words, eol
         def list_indent(): return space
-        def bullet_list_item(): return list_indent, '*', space, list_leaf_content
-        def number_list_item(): return list_indent, '#', space, list_leaf_content
+        def bullet_list_item(): return list_indent, _(r'\*'), space, list_leaf_content
+        def number_list_item(): return list_indent, _(r'#'), space, list_leaf_content
         def list_item(): return [bullet_list_item, number_list_item]
         def list(): return -2, list_item, -1, blankline
     
@@ -88,8 +88,8 @@ class WikiGrammar(dict):
         def protocal(): return [_(r'http://'), _(r'https://'), _(r'ftp://')]
         def direct_link(): return protocal, _(r'[\w\d\-\.,@\?\^=%&:/~+#]+')
         def image_link(): return protocal, _(r'.*?(?:\.png|\.jpg|\.gif|\.jpeg)')
-        def alt_direct_link(): return '[', 0, space, direct_link, space, _(r'[^\]]+'), 0, space, ']'
-        def alt_image_link(): return '[', 0, space, direct_link, space, image_link, 0, space, ']'
+        def alt_direct_link(): return _(r'\['), 0, space, direct_link, space, _(r'[^\]]+'), 0, space, _(r'\]')
+        def alt_image_link(): return _(r'\['), 0, space, direct_link, space, image_link, 0, space, _(r'\]')
         def mailto(): return 'mailto:', _(r'[a-zA-Z_0-9-@/\.]+')
         def link(): return [alt_image_link, alt_direct_link, image_link, direct_link, mailto], -1, space
         
@@ -197,28 +197,28 @@ class WikiHtmlVisitor(SimpleVisitor):
         return self.tag('h1', self.subject)
     
     def visit_title1(self, node):
-        self.subject = node[0].text
-        return self.tag('h1', node[0].text)
+        self.subject = node[1].text
+        return self.tag('h1', node[1].text)
     
     def visit_title2(self, node):
-        self.titles.append((2, node[0].text))
-        return self.tag('h2', node[0].text)
+        self.titles.append((2, node[1].text))
+        return self.tag('h2', node[1].text)
 
     def visit_title3(self, node):
-        self.titles.append((3, node[0].text))
-        return self.tag('h3', node[0].text)
+        self.titles.append((3, node[1].text))
+        return self.tag('h3', node[1].text)
 
     def visit_title4(self, node):
-        self.titles.append((4, node[0].text))
-        return self.tag('h4', node[0].text)
+        self.titles.append((4, node[1].text))
+        return self.tag('h4', node[1].text)
     
     def visit_title5(self, node):
         self.titles.append((5, node[0].text))
         return self.tag('h5', node[0].text)
 
     def visit_title6(self, node):
-        self.titles.append((6, node[0].text))
-        return self.tag('h6', node[0].text)
+        self.titles.append((6, node[1].text))
+        return self.tag('h6', node[1].text)
 
     def visit_paragraph(self, node):
         return self.tag('p', self.visit(node).rstrip())
@@ -255,17 +255,11 @@ class WikiHtmlVisitor(SimpleVisitor):
     def visit_table_end(self, node):
         return '</table>\n'
     
-    def visit_table_line_begin(self, node):
-        return self.tag('tr', newline=False)
+    def visit_table_line(self, node):
+        return self.tag('tr', self.visit(node[1:]))
     
-    def visit_table_line_end(self, node):
-        return '</tr>\n'
-    
-    def visit_table_column_begin(self, node):
-        return '<td>'
-    
-    def visit_table_column_end(self, node):
-        return '</td>'
+    def visit_table_column(self, node):
+        return self.tag('td', self.visit(node[:-1]), newline=False)
     
     def visit_list_begin(self, node):
         self.lists = []
@@ -334,10 +328,10 @@ class WikiHtmlVisitor(SimpleVisitor):
         return '<a href="%s%s">%s%s</a>' % (node[0].text, node[1], node[0].text, node[1])
     
     def visit_alt_direct_link(self, node):
-        return '<a href="%s">%s</a>' % (node[0].text, node[2].strip())
+        return '<a href="%s">%s</a>' % (node[1].text, node[3].strip())
     
     def visit_alt_image_link(self, node):
-        return '<a href="%s">%s</a>' % (node[0].text, self.visit_direct_link(node[2]))
+        return '<a href="%s">%s</a>' % (node[1].text, self.visit_direct_link(node[3]))
 
     def visit_image_link(self, node):
         return '<img src="%s%s"/>' % (node[0].text, node[1])
