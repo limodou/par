@@ -42,8 +42,8 @@ class WikiGrammar(dict):
         def op_string(): return _(r'\*|_|~~|\^|,,')
         def op(): return [(-1, seperator, op_string), (op_string, -1, seperator)]
         def string(): return _(r'[^\\\*_\^~ \t\r\n`,]+', re.U)
-        def code_string_short(): return '`', _(r'[^`]*'), '`'
-        def code_string(): return '{{{', _(r'[^\}\r\n$]*'), '}}}'
+        def code_string_short(): return _(r'`'), _(r'[^`]*'), _(r'`')
+        def code_string(): return _(r'\{\{\{'), _(r'[^\}\r\n$]*'), _(r'\}\}\}')
         def default_string(): return _(r'\S+', re.U)
         def word(): return [literal, literal1, escape_string, code_string, code_string_short, op, link, string, default_string]
         def words(): return word, -1, [space, word]
@@ -86,7 +86,7 @@ class WikiGrammar(dict):
             
         #links
         def protocal(): return [_(r'http://'), _(r'https://'), _(r'ftp://')]
-        def direct_link(): return protocal, _(r'[\w\d\-\.,@\?\^=%&:/~+#]+')
+        def direct_link(): return protocal, _(r'[\w\-\.,@\?\^=%&:/~+#]+')
         def image_link(): return protocal, _(r'.*?(?:\.png|\.jpg|\.gif|\.jpeg)')
         def alt_direct_link(): return _(r'\['), 0, space, direct_link, space, _(r'[^\]]+'), 0, space, _(r'\]')
         def alt_image_link(): return _(r'\['), 0, space, direct_link, space, image_link, 0, space, _(r'\]')
@@ -162,6 +162,7 @@ class WikiHtmlVisitor(SimpleVisitor):
         self._template = template or default_template
         self.title = 'Untitled'
         self.titles = []
+        self.titles_ids = {}
         self.ops = {}
         self.tag_class = tag_class or self.__class__.tag_class
         
@@ -172,26 +173,39 @@ class WikiHtmlVisitor(SimpleVisitor):
         body = self.visit(node)
         return self._template % {'title':self.title, 'body':body}
     
-    def tag(self, tag, child='', enclose=0, newline=True):
+    def tag(self, tag, child='', enclose=0, newline=True, **kwargs):
         """
         enclose:
             0 => <tag>
             1 => <tag/>
             2 => <tag></tag>
         """
+        kw = kwargs.copy()
         _class = self.tag_class.get(tag, '')
         if _class:
-            _class = ' class="%s"' % _class
+            kw['class'] = _class
+        attrs = ' '.join(['%s="%s"' % (x, y) for x, y in kw.items()])
+        if attrs:
+            attrs = ' ' + attrs
         nline = '\n' if newline else ''
         if child:
             enclose = 2
         if enclose == 1:
-            return '<%s%s/>%s' % (tag, _class, nline)
+            return '<%s%s/>%s' % (tag, attrs, nline)
         elif enclose == 2:
-            return '<%s%s>%s</%s>%s' % (tag, _class, child, tag, nline)
+            return '<%s%s>%s</%s>%s' % (tag, attrs, child, tag, nline)
         else:
-            return '<%s%s>%s' % (tag, _class, nline)
-            
+            return '<%s%s>%s' % (tag, attrs, nline)
+    
+    def get_title_id(self, level, begin=2):
+        x = self.titles_ids.setdefault(level, 0) + 1
+        self.titles_ids[level] = x
+        _ids = []
+        for x in range(2, level+1):
+            y = self.titles_ids.setdefault(x, 0)
+            _ids.append(y)
+        return 'title_%s' % '.'.join(map(str, _ids))
+    
     def visit_subject(self, node):
         self.subject = node[0].strip()
         return self.tag('h1', self.subject)
@@ -201,24 +215,29 @@ class WikiHtmlVisitor(SimpleVisitor):
         return self.tag('h1', node[1].text)
     
     def visit_title2(self, node):
-        self.titles.append((2, node[1].text))
-        return self.tag('h2', node[1].text)
+        _id = self.get_title_id(2)
+        self.titles.append((2, _id, node[1].text))
+        return self.tag('h2', node[1].text, id=_id)
 
     def visit_title3(self, node):
-        self.titles.append((3, node[1].text))
-        return self.tag('h3', node[1].text)
+        _id = self.get_title_id(3)
+        self.titles.append((3, _id, node[1].text))
+        return self.tag('h3', node[1].text, id=_id)
 
     def visit_title4(self, node):
-        self.titles.append((4, node[1].text))
-        return self.tag('h4', node[1].text)
+        _id = self.get_title_id(4)
+        self.titles.append((4, _id, node[1].text))
+        return self.tag('h4', node[1].text, id=_id)
     
     def visit_title5(self, node):
-        self.titles.append((5, node[0].text))
-        return self.tag('h5', node[0].text)
+        _id = self.get_title_id(5)
+        self.titles.append((5, _id, node[1].text))
+        return self.tag('h5', node[1].text, id=_id)
 
     def visit_title6(self, node):
-        self.titles.append((6, node[1].text))
-        return self.tag('h6', node[1].text)
+        _id = self.get_title_id(6)
+        self.titles.append((6, _id, node[1].text))
+        return self.tag('h6', node[1].text, id=_id)
 
     def visit_paragraph(self, node):
         return self.tag('p', self.visit(node).rstrip())
@@ -241,10 +260,10 @@ class WikiHtmlVisitor(SimpleVisitor):
         return self.tag('pre', self.to_html(node[0].text.strip()))
     
     def visit_code_string(self, node):
-        return self.tag('code', self.to_html(node[0]), newline=False)
+        return self.tag('code', self.to_html(node[1]), newline=False)
     
     def visit_code_string_short(self, node):
-        return self.tag('code', self.to_html(node[0]), newline=False)
+        return self.tag('code', self.to_html(node[1]), newline=False)
 
     def visit_hr(self, node):
         return self.tag('hr', enclose=1)
