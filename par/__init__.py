@@ -323,11 +323,11 @@ class WikiHtmlVisitor(SimpleVisitor):
         return create_list(0, self.lists)[0]
         
     def visit_bullet_list_item(self, node):
-        self.lists.append(('b', len(node[0].text), self.visit([node[2]])))
+        self.lists.append(('b', len(node[0].text), self.visit([node[3]])))
         return ''
         
     def visit_number_list_item(self, node):
-        self.lists.append(('n', len(node[0].text), self.visit([node[2]])))
+        self.lists.append(('n', len(node[0].text), self.visit([node[3]])))
         return ''
         
     def visit_list_leaf_content(self, node):
