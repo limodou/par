@@ -51,8 +51,10 @@ class WikiGrammar(dict):
         def paragraph(): return -2, line, -1, blankline
     
         #pre
+        def pre_b(): return _(r'\{\{\{')
+        def pre_e(): return _(r'\}\}\}')
         def pre_alt(): return _(r'<code>'), _(r'.+?(?=</code>)', re.M|re.DOTALL), _(r'</code>'), -2, blankline
-        def pre_normal(): return _(r'\{\{\{'), 0, space, eol, _(r'.+?(?=\}\}\})', re.M|re.DOTALL), _(r'\}\}\}'), -2, blankline
+        def pre_normal(): return pre_b, 0, space, eol, _(r'.+?(?=\}\}\})', re.M|re.DOTALL), pre_e, -2, blankline
         def pre(): return [pre_alt, pre_normal]
     
         
@@ -109,10 +111,14 @@ class WikiGrammar(dict):
         return parseLine(text, root or self.root, skipWS=skipWS, **kwargs)
         
 class SimpleVisitor(object):
-    def visit(self, nodes):
+    def visit(self, nodes, root=False):
         buf = []
         if not isinstance(nodes, (list, tuple)):
             nodes = [nodes]
+        if root:
+            method = getattr(self, '__begin__', None)
+            if method:
+                buf.append(method())
         for node in nodes:
             if isinstance(node, (str, unicode)):
                 buf.append(node)
@@ -132,6 +138,10 @@ class SimpleVisitor(object):
                 if method:
                     buf.append(method(node))
             
+        if root:
+            method = getattr(self, '__end__', None)
+            if method:
+                buf.append(method())
         return ''.join(buf)
 
 default_template="""<!DOCTYPE html>
@@ -256,9 +266,18 @@ class WikiHtmlVisitor(SimpleVisitor):
         text = text.replace('>', '&gt;')
         return text
     
-    def visit_pre(self, node):
-        return self.tag('pre', self.to_html(node[0].text.strip()))
+    def visit_pre_alt(self, node):
+        return self.tag('pre', self.to_html(node[1].strip()))
+
+    def visit_pre_normal(self, node):
+        return self.tag('pre', self.to_html(self.visit(node).strip()))
     
+    def visit_pre_b(self, node):
+        return ''
+    
+    def visit_pre_e(self, node):
+        return ''
+
     def visit_code_string(self, node):
         return self.tag('code', self.to_html(node[1]), newline=False)
     
