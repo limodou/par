@@ -38,7 +38,7 @@ class WikiGrammar(dict):
         def identifer(): return _(r'[a-zA-Z_][a-zA-Z_0-9]*', re.U)
         def literal(): return _(r'u?r?"[^"\\]*(?:\\.[^"\\]*)*"', re.I|re.DOTALL)
         def literal1(): return _(r"u?r?'[^'\\]*(?:\\.[^'\\]*)*'", re.I|re.DOTALL)
-        def escape_string(): return '\\', _(r'.')
+        def escape_string(): return _(r'\\'), _(r'.')
         def op_string(): return _(r'\*|_|~~|\^|,,')
         def op(): return [(-1, seperator, op_string), (op_string, -1, seperator)]
         def string(): return _(r'[^\\\*_\^~ \t\r\n`,]+', re.U)
@@ -259,7 +259,7 @@ class WikiHtmlVisitor(SimpleVisitor):
         return self.op_maps[c][index]
         
     def visit_escape_string(self, node):
-        return node[0]
+        return node[1]
     
     def to_html(self, text):
         text = text.replace('<', '&lt;')
