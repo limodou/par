@@ -2,7 +2,8 @@
 
 import sys
 sys.path.insert(0, '..')
-from par import WikiGrammar, WikiHtmlVisitor, SimpleVisitor
+from par import SimpleVisitor
+from par.gwiki import WikiGrammar, WikiHtmlVisitor
 
 template="""<!DOCTYPE html>
 <html>
@@ -227,20 +228,19 @@ http://chart.apis.google.com/chart?chs=200x125&chd=t:48.14,33.79,19.77|83.18,18.
 #  * And back to the main bulleted list
 #"""
 
-g = WikiGrammar()
+def main(text):
+    g = WikiGrammar()
+    resultSoFar = []
+    result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
+#    print rest, result[0].render()
+#    print SimpleVisitor().visit(result).encode('gbk')
+    print WikiHtmlVisitor(template, tag_class).template(result).encode('utf8')
 
-resultSoFar = []
-
-result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
-#result, rest = g.parse(txt, g['paragraph'], resultSoFar=resultSoFar, skipWS=False)
-#print result[0].render()
-
-#print '====== rest ======'
-#print rest
-#print '====== resultSoFar ======'
-#print resultSoFar[0].render()
-#print '====== render ======'
-#print result[0].render()
-print SimpleVisitor().visit(result).encode('gbk')
-#print WikiHtmlVisitor(template, tag_class).template(result)
+if __name__ == '__main__':
+    import sys
+    if len(sys.argv) > 1:
+        t = open(sys.argv[1]).read()
+    else:
+        t = text
+    main(t)
 

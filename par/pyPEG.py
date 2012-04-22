@@ -48,7 +48,27 @@ class Symbol(list):
                 else:
                     buf.append(x.render(index+1))
         return ''.join(buf)
-        
+    def find(self, name):
+        for x in self.what:
+            if isinstance(x, (str, unicode)):
+                continue
+            else:
+                if x.__name__ == name:
+                    return x
+                r = x.find(name)
+                if r:
+                    return r
+    def find_all(self, name):
+        for x in self.what:
+            if isinstance(x, (str, unicode)):
+                continue
+            else:
+                if x.__name__ == name:
+                    yield x
+                r = x.find(name)
+                if r:
+                    yield r
+    
     @property
     def text(self):
         buf = []
