@@ -29,15 +29,6 @@ text = u"""
 Markdown: Syntax
 ================
 
-<ul id="ProjectSubmenu">
-    <li><a href="/projects/markdown/" title="Markdown Project Page">Main</a></li>
-    <li><a href="/projects/markdown/basics" title="Markdown Basics">Basics</a></li>
-    <li><a class="selected" title="Markdown Syntax Documentation">Syntax</a></li>
-    <li><a href="/projects/markdown/license" title="Pricing and License Information">License</a></li>
-    <li><a href="/projects/markdown/dingus" title="Online Markdown Web Form">Dingus</a></li>
-</ul>
-
-
 *   [Overview](#overview)
     *   [Philosophy](#philosophy)
     *   [Inline HTML](#html)
@@ -921,15 +912,9 @@ Markdown provides backslash escapes for the following characters:
 #"""
 
 def main(text):
-    g = MarkdownGrammar()
-    resultSoFar = []
-    result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
-#    print rest.encode('gbk'), result[0].render()
-#    print '--------------------------'
-#    print SimpleVisitor().visit(result).encode('gbk')
-#    print '--------------------------'
-    v = MarkdownHtmlVisitor(template, tag_class, g)
-    print v.template(result).encode('utf8')
+    from par.md import parseHtml, parseText
+#    print parseHtml(text, template, tag_class).encode('utf8')
+    print parseText(text).encode('utf8')
     
 if __name__ == '__main__':
     import sys

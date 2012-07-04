@@ -42,8 +42,8 @@ class MarkdownGrammar(WikiGrammar):
         def hr(): return [hr1, hr2, hr3]
           
         #html block
-        def html_block(): return _(r'<(table|pre|div|p|ul|h1|h2|h3|h4|h5|h6|blockquote|code).*?>.*?<(/\1>)', re.I|re.DOTALL), -2, blankline
-        def html_inline_block(): return _(r'<(span|del|font|a|b|code|i|em|strong|sub|sup).*?>.*?<(/\1>)|<(img|br).*?/>', re.I|re.DOTALL)
+        def html_block(): return _(r'<(table|pre|div|p|ul|h1|h2|h3|h4|h5|h6|blockquote|code).*?>.*?<(/\1)>', re.I|re.DOTALL), -2, blankline
+        def html_inline_block(): return _(r'<(span|del|font|a|b|code|i|em|strong|sub|sup).*?>.*?<(/\1)>|<(img|br).*?/>', re.I|re.DOTALL)
                         
         #paragraph
         def blankline(): return 0, space, eol
@@ -60,8 +60,7 @@ class MarkdownGrammar(WikiGrammar):
         def code_string(): return _(r'``'), _(r'.+(?=``)'), _(r'``')
         def default_string(): return _(r'\S+', re.U)
         def underscore_words(): return _(r'[\w\d]+_[\w\d]+[\w\d_]*')
-        def anchor(): return _(r'\[\['), 0, space, _(r'#'), _(r'\d*'), 0, space, _(r'\]\]')
-        def word(): return [anchor, escape_string, code_string, 
+        def word(): return [escape_string, code_string, 
             code_string_short, htmlentity, underscore_words, op, link, 
             html_inline_block, string, default_string]
         def words(): return [simple_op, word], -1, [simple_op, space, word]
@@ -167,6 +166,37 @@ class MarkdownGrammar(WikiGrammar):
             text = text + '\n'
         return parseLine(text, root or self.root, skipWS=skipWS, **kwargs)
 
+class MarkdownTextVisitor(SimpleVisitor):
+    def __init__(self, grammar=None):
+        super(MarkdownTextVisitor, self).__init__(grammar)
+        self.visit_nodes = ['hr', 'title', 'refer_link_note', 'pre', 
+            'html_block', 'table', 'list', 'blockquote', 'line', 'blanklines']
+        self.last_visit = None
+        self.paragraph = []
+
+    def before_visit(self, node):
+        name = node.__name__
+        if name in self.visit_nodes:
+            if name != self.last_visit:
+                if name != 'line':
+                    if self.paragraph:
+                        t = ''.join(self.paragraph)
+                        if hasattr(self, 'visit_paragraph'):
+                            t = self.visit_paragraph(t)
+                        self.paragraph = []
+                        return t
+            self.last_visit = name
+        return ''
+        
+    def __end__(self):
+        if self.paragraph:
+            t = ''.join(self.paragraph)
+            if hasattr(self, 'visit_paragraph'):
+                t = self.visit_paragraph(t)
+            self.paragraph = []
+            return t
+        return ''
+    
 class MarkdownHtmlVisitor(WikiHtmlVisitor):
     op_maps = {
         '*':['<em>', '</em>'],
@@ -182,8 +212,8 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
     }
     tag_class = {}
     
-    def __init__(self, template=None, tag_class=None, grammar=None):
-        super(MarkdownHtmlVisitor, self).__init__(template, tag_class, grammar)
+    def __init__(self, template=None, tag_class=None, grammar=None, title='Untitled'):
+        super(MarkdownHtmlVisitor, self).__init__(template, tag_class, grammar, title)
         self.refer_links = {}
         self.last_visit = None
         self.visit_nodes = ['hr', 'title', 'refer_link_note', 'pre', 
@@ -197,6 +227,8 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
                 if name != 'line':
                     if self.paragraph:
                         t = ''.join(self.paragraph)
+                        if hasattr(self, 'visit_paragraph'):
+                            t = self.visit_paragraph(t)
                         self.paragraph = []
                         return self.tag('p', t)
             self.last_visit = name
@@ -206,7 +238,10 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         if self.paragraph:
             t = ''.join(self.paragraph)
             self.paragraph = []
-            return self.tag('p', t)
+            if hasattr(self, 'visit_paragraph'):
+                return self.visit_paragraph(t)
+            else:
+                return self.tag('p', t)
         return ''
     
     def visit_string(self, node):
@@ -329,11 +364,12 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         t = node.text
         if t.startswith('<'):
             e = -1
+            b = 1
         else:
+            b = 0
             e = len(t)
-        b = t.find('://') + 3
         href = t[b:e]
-        return self.tag('img', href, 1)
+        return self.tag('img', src=href, enclose=1)
     
     def visit_mailto(self, node):
         href = node.text[1:-1]
@@ -389,7 +425,7 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
             text = self.visit(n)
             t = self.parse_text(text, 'article').rstrip()
             if t.count('<p>') == 1 and t.startswith('<p>') and t.endswith('</p>'):
-                return t[3:-5].rstrip()
+                return t[3:-4].rstrip()
             else:
                 return t
             
@@ -397,7 +433,7 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
             buf = []
             old = None
             parent = None
-            for  _type, _node in lists:
+            for _type, _node in lists:
                 if _type == old:
                     buf.append(self.tag('li', process_node(_node)))
                 else:
@@ -417,3 +453,18 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
     
         return create_list(self.lists)
     
+def parseHtml(text, template=None, tag_class=None):
+    template = template or ''
+    tag_class = tag_class or {}
+    g = MarkdownGrammar()
+    resultSoFar = []
+    result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
+    v = MarkdownHtmlVisitor(template, tag_class, g)
+    return v.template(result)
+    
+def parseText(text):
+    g = MarkdownGrammar()
+    resultSoFar = []
+    result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
+    v = MarkdownTextVisitor(g)
+    return v.visit(result)

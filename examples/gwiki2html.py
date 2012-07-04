@@ -229,12 +229,8 @@ http://chart.apis.google.com/chart?chs=200x125&chd=t:48.14,33.79,19.77|83.18,18.
 #"""
 
 def main(text):
-    g = WikiGrammar()
-    resultSoFar = []
-    result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
-#    print rest, result[0].render()
-#    print SimpleVisitor().visit(result).encode('gbk')
-    print WikiHtmlVisitor(template, tag_class).template(result).encode('utf8')
+    from par.gwiki import parseHtml
+    print parseHtml(text, template, tag_class).encode('utf8')
 
 if __name__ == '__main__':
     import sys

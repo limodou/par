@@ -108,22 +108,22 @@ class WikiHtmlVisitor(SimpleVisitor):
     }
     tag_class = {}
     
-    default_template="""<!DOCTYPE html>
-<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel="stylesheet" type="text/css" href="bootstrap.min.css"/>
-<link rel="stylesheet" type="text/css" href="example.css"/>
-<title>%(title)s</title>
-</head>
-<body>
-%(body)s</body>
-</html>
-"""
+#    default_template="""<!DOCTYPE html>
+#<html>
+#<head>
+#<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+#<link rel="stylesheet" type="text/css" href="bootstrap.min.css"/>
+#<link rel="stylesheet" type="text/css" href="example.css"/>
+#<title>%(title)s</title>
+#</head>
+#<body>
+#%(body)s</body>
+#</html>
+#"""
     
-    def __init__(self, template=None, tag_class=None, grammar=None):
-        self._template = template or self.default_template
-        self.title = 'Untitled'
+    def __init__(self, template=None, tag_class=None, grammar=None, title='Untitled'):
+        self._template = template
+        self.title = title
         self.titles = []
         self.titles_ids = {}
         self.ops = {}
@@ -135,15 +135,18 @@ class WikiHtmlVisitor(SimpleVisitor):
     
     def template(self, node):
         body = self.visit(node, self.grammar or self.grammar.root)
-        return self._template % {'title':self.title, 'body':body}
+        if self._template:
+            return self._template % {'title':self.title, 'body':body}
+        else:
+            return body
     
     def parse_text(self, text, peg=None):
         g = self.grammar
-        if peg:
+        if isinstance(peg, (str, unicode)):
             peg = g[peg]
         resultSoFar = []
         result, rest = g.parse(text, root=peg, resultSoFar=resultSoFar, skipWS=False)
-        v = self.__class__('', self.tag_class, self.grammar)
+        v = self.__class__('', self.tag_class, g)
         return v.visit(result, peg)
     
     def tag(self, tag, child='', enclose=0, newline=True, **kwargs):
@@ -338,3 +341,18 @@ class WikiHtmlVisitor(SimpleVisitor):
     def visit_image_link(self, node):
         return '<img src="%s%s"/>' % (node[0].text, node[1])
     
+def parseHtml(text, template=None, tag_class=None):
+    template = template or ''
+    tag_class = tag_class or {}
+    g = WikiGrammar()
+    resultSoFar = []
+    result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
+    v = WikiHtmlVisitor(template, tag_class, g)
+    return v.template(result)
+
+def parseText(text):
+    g = WikiGrammar()
+    resultSoFar = []
+    result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
+    v = SimpleVisitor(g)
+    return v.visit(result)
