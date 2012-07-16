@@ -95,3 +95,91 @@ This is an example of how to use par to parse markdown format text. It can be
 used in command, for example:
 
     python markdown2html.py readme.md > readme.html
+
+Paring Markdown Programmly
+-----------------------------
+
+Do like this:
+
+    from par.md import parseHtml
+
+    template = '''<!doctype html>
+    <html>
+    <head>
+    <title>%(title)s</title>
+    </head>
+    <body>
+    %(body)s
+    </body>
+    </html>'''
+
+    tag_class = {'table':'table'}
+
+    text = """
+    # Test Markdown
+
+    This is a pragraph
+    """
+
+    print parseHtml(text, template, tag_class)
+
+Markdown Syntax Expand
+-------------------------
+
+Table Support
+===============
+
+do like this:
+
+    || a || b || c ||
+    || c || d || e ||
+
+will get this:
+
+    <table>
+    <tr><td> a </td><td> b </td><td> c </td>
+    </tr>
+    <tr><td> b </td><td> c </td><td> d </td>
+    </tr>
+    </table>
+
+Definition List support
+===========================
+
+do like this:
+
+    a --
+        abc
+    b --
+        cde
+
+will get this:
+
+    <dl>
+    <dt>a</dt>
+    <dd><p>abc</p>
+    </dd>
+    <dt>b</dt>
+    <dd><p>cde</p>
+    </dd>
+    </dl>
+
+Directly links
+==================
+
+You can use:
+
+    http://google.com
+
+in text.
+
+Other text decorators
+=========================
+
+Par.md also adds some new text decorators, such as:
+
+    ^text^          <sup>text<sup>
+    ,,text,,        <sub>text<sub>
+    ~~text~~        <span style="text-decoration: line-through">text</span>
+    ***text***      <strong><em>text</em></strong>
+    ___text___      <strong><em>text</em></strong>

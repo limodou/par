@@ -95,6 +95,7 @@ class WikiGrammar(dict):
             text = '\n'
         if text[-1] not in ('\r', '\n'):
             text = text + '\n'
+        text = re.sub('\r\n|\r', '\n', text)
         return parseLine(text, root or self.root, skipWS=skipWS, **kwargs)
         
 class WikiHtmlVisitor(SimpleVisitor):
@@ -122,7 +123,7 @@ class WikiHtmlVisitor(SimpleVisitor):
 #"""
     
     def __init__(self, template=None, tag_class=None, grammar=None, title='Untitled'):
-        self._template = template
+        self._template = template or '%(body)s'
         self.title = title
         self.titles = []
         self.titles_ids = {}
@@ -181,6 +182,9 @@ class WikiHtmlVisitor(SimpleVisitor):
             y = self.titles_ids.setdefault(x, 0)
             _ids.append(y)
         return 'title_%s' % '.'.join(map(str, _ids))
+    
+    def visit_eol(self, node):
+        return '\n'
     
     def visit_subject(self, node):
         self.subject = node[0].strip()

@@ -12,6 +12,7 @@
 #     http://code.google.com/images/code_sm.png
 #     http://www.google.com
 #   Table support
+#   Difinition list support <dl><dt><dd>
 #   github flavored Markdown support:
 #     Multiple underscores in words
 #     Fenced code blocks
@@ -64,8 +65,8 @@ class MarkdownGrammar(WikiGrammar):
             code_string_short, htmlentity, underscore_words, op, link, 
             html_inline_block, string, default_string]
         def words(): return [simple_op, word], -1, [simple_op, space, word]
-        def line(): return words, eol
-#        def paragraph(): return -2, line, -1, blankline
+        def line(): return 0, space, words, eol
+        def paragraph(): return line, -1, (0, space, common_line), -1, blanklines
         def blanklines(): return -2, blankline
     
         #pre
@@ -75,9 +76,11 @@ class MarkdownGrammar(WikiGrammar):
         def pre_lang(): return _(r'\S+')
         def pre_b(): return _(r'```')
         def pre_e(): return _(r'```')
-        def pre_text(): return _(r'.+?(?=```)', re.M|re.DOTALL)
-        def pre_extra(): return pre_b, 0, pre_lang, 0, space, eol, pre_text, pre_e, -2, blankline
-        def pre(): return [indent_block, pre_extra]
+        def pre_text1(): return _(r'.+?(?=```)', re.M|re.DOTALL)
+        def pre_text2(): return _(r'.+?(?=</code>)', re.M|re.DOTALL)
+        def pre_extra1(): return _(r'```'), 0, pre_lang, 0, space, eol, pre_text1, _(r'```'), -2, blankline
+        def pre_extra2(): return _(r'<code>'), 0, pre_lang, 0, space, eol, pre_text2, _(r'</code>'), -2, blankline
+        def pre(): return [indent_block, pre_extra1, pre_extra2]
     
         
         #subject
@@ -99,24 +102,34 @@ class MarkdownGrammar(WikiGrammar):
         def table_line(): return _(r'\|\|'), -2, table_column, eol
         def table(): return -2, table_line, -1, blankline
     
+        #definition
+        def dl_dt(): return _(r'(?:[^\-\+#\r\n\*>\d]|(?:\*|\+|-)\S+|>\S+|\d+\.\S+).*? --'), eol
+        def dl_dd(): return list_content_indent_lines
+        def dl_line(): return dl_dt, dl_dd
+        def dl(): return -2, dl_line
+    
         #lists
+        def common_text(): return _(r'(?:[^\-\+#\r\n\*>\d]|(?:\*|\+|-)\S+|>\S+|\d+\.\S+)[^\r\n]*')
+        def common_line(): return common_text, eol 
         def list_rest_of_line(): return _(r'.+'), eol
-        def list_content_text(): return _(r'[^*+\-\s].+'), eol
-        def list_content_line(): return _(r'([\*+\-]\S+|\d+\.[\S$]*|\d+[^\.]*|[^\*\-+\r\n]).*')
-        def list_content_lines(): return list_rest_of_line, -1, [list_content_indent_line, list_content_line]
+        def list_first_para(): return list_rest_of_line, -1, (0, space, common_line), -1, blanklines
+        def list_content_text(): return list_rest_of_line, -1, [list_content_norm_line, blankline]
+        def list_content_line(): return _(r'([\*+\-]\S+|\d+\.[\S$]*|\d+[^\.]*|[^\-\+\r\n#>]).*')
+        def list_content_lines(): return list_content_norm_line, -1, [list_content_indent_lines, list_content_line, blankline]
         def list_content_indent_line(): return _(r' {4}|\t'), list_rest_of_line
-        def list_content_norm_line(): return _(r' {0,3}'), list_rest_of_line
-        def list_content_indent_lines(): return list_content_indent_line, -1, list_content_line
-        def list_content(): return list_content_lines, -1, [list_content_indent_lines, blankline]
+        def list_content_norm_line(): return _(r' {1,3}'), common_line, -1, (0, space, common_line), -1, blanklines
+        def list_content_indent_lines(): return list_content_indent_line, -1, [list_content_indent_line, blankline]
+        def list_content(): return list_first_para, -1, [list_content_indent_lines, list_content_lines]
         def bullet_list_item(): return 0, _(r' {1,3}'), _(r'\*|\+|-'), space, list_content
         def number_list_item(): return 0, _(r' {1,3}'), _(r'\d+\.'), space, list_content
         def list_item(): return [bullet_list_item, number_list_item]
         def list(): return -2, list_item, -1, blankline
     
         #quote
-        def quote_blank_line(): return _(r'>'), eol
-        def quote_line(): return _(r'> .*'), eol
-        def quote_lines(): return [quote_line, quote_blank_line]
+        def quote_text(): return _(r'[^\r\n]*'), eol
+        def quote_blank_line(): return _(r'>[ \t]*'), eol
+        def quote_line(): return _(r'> '), quote_text
+        def quote_lines(): return [quote_blank_line, quote_line]
         def blockquote(): return -2, quote_lines, -1, blankline
             
         #links
@@ -147,55 +160,17 @@ class MarkdownGrammar(WikiGrammar):
         def refer_link_refer(): return _(r'[^\]]*')
         def refer_link(): return refer_link_caption, 0, space, _(r'\['), refer_link_refer, _(r'\]')
         def refer_link_link(): return 0, _(r'(<)?(\S+)(?(1)>)')
-        def refer_link_title(): return [literal, literal1, '\(.*?\)']
+        def refer_link_title(): return [_(r'\([^\)]*\)'), literal, literal1]
         def refer_link_note(): return 0, _(r' {1,3}'), inline_link_caption, _(r':'), space, refer_link_link, 0, (ws, refer_link_title), -2, blankline
         def link(): return [inline_image, refer_image, inline_link, refer_link, image_link, direct_link, mailto], -1, space
         
         #article
-        def article(): return -1, [blanklines, hr, title, refer_link_note, pre, html_block, table, list, blockquote, line]
+        def article(): return -1, [blanklines, hr, title, refer_link_note, pre, html_block, table, list, dl, blockquote, paragraph]
     
         peg_rules = {}
         for k, v in ((x, y) for (x, y) in locals().items() if isinstance(y, types.FunctionType)):
             peg_rules[k] = v
         return peg_rules, article
-    
-    def parse(self, text, root=None, skipWS=False, **kwargs):
-        if not text:
-            text = '\n'
-        if text[-1] not in ('\r', '\n'):
-            text = text + '\n'
-        return parseLine(text, root or self.root, skipWS=skipWS, **kwargs)
-
-class MarkdownTextVisitor(SimpleVisitor):
-    def __init__(self, grammar=None):
-        super(MarkdownTextVisitor, self).__init__(grammar)
-        self.visit_nodes = ['hr', 'title', 'refer_link_note', 'pre', 
-            'html_block', 'table', 'list', 'blockquote', 'line', 'blanklines']
-        self.last_visit = None
-        self.paragraph = []
-
-    def before_visit(self, node):
-        name = node.__name__
-        if name in self.visit_nodes:
-            if name != self.last_visit:
-                if name != 'line':
-                    if self.paragraph:
-                        t = ''.join(self.paragraph)
-                        if hasattr(self, 'visit_paragraph'):
-                            t = self.visit_paragraph(t)
-                        self.paragraph = []
-                        return t
-            self.last_visit = name
-        return ''
-        
-    def __end__(self):
-        if self.paragraph:
-            t = ''.join(self.paragraph)
-            if hasattr(self, 'visit_paragraph'):
-                t = self.visit_paragraph(t)
-            self.paragraph = []
-            return t
-        return ''
     
 class MarkdownHtmlVisitor(WikiHtmlVisitor):
     op_maps = {
@@ -203,7 +178,7 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         '_':['<em>', '</em>'],
         '**':['<strong>', '</strong>'],
         '***':['<strong><em>', '</em></strong>'],
-        '__':['<strong><em>', '</em></strong>'],
+        '___':['<strong><em>', '</em></strong>'],
         '__':['<strong>', '</strong>'],
         '~~':['<span style="text-decoration: line-through">', '</span>'],
         '^':['<sup>', '</sup>'],
@@ -215,44 +190,22 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
     def __init__(self, template=None, tag_class=None, grammar=None, title='Untitled'):
         super(MarkdownHtmlVisitor, self).__init__(template, tag_class, grammar, title)
         self.refer_links = {}
-        self.last_visit = None
-        self.visit_nodes = ['hr', 'title', 'refer_link_note', 'pre', 
-            'html_block', 'table', 'list', 'blockquote', 'line', 'blanklines']
-        self.paragraph = []
     
-    def before_visit(self, node):
-        name = node.__name__
-        if name in self.visit_nodes:
-            if name != self.last_visit:
-                if name != 'line':
-                    if self.paragraph:
-                        t = ''.join(self.paragraph)
-                        if hasattr(self, 'visit_paragraph'):
-                            t = self.visit_paragraph(t)
-                        self.paragraph = []
-                        return self.tag('p', t)
-            self.last_visit = name
-        return ''
-        
-    def __end__(self):
-        if self.paragraph:
-            t = ''.join(self.paragraph)
-            self.paragraph = []
-            if hasattr(self, 'visit_paragraph'):
-                return self.visit_paragraph(t)
-            else:
-                return self.tag('p', t)
-        return ''
+    def parse_text(self, text, peg=None):
+        g = self.grammar
+        if isinstance(peg, (str, unicode)):
+            peg = g[peg]
+        resultSoFar = []
+        result, rest = g.parse(text, root=peg, resultSoFar=resultSoFar, skipWS=False)
+        v = self.__class__('', self.tag_class, g)
+        v.refer_links = self.refer_links
+        return v.visit(result, peg)
     
     def visit_string(self, node):
         return self.to_html(node.text)
     
-    def visit_line(self, node):
-        self.paragraph.append(self.visit(node))
-        return ''
-    
     def visit_blanklines(self, node):
-        return ''
+        return '\n'
     
     def visit_title1(self, node):
         _id = self.get_title_id(1)
@@ -282,6 +235,11 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
     def visit_indent_line(self, node):
         return node.find('indent_line_text').text + '\n'
 
+    def visit_paragraph(self, node):
+        txt = node.text.rstrip().replace('\n', ' ')
+        text = self.parse_text(txt, 'words')
+        return self.tag('p', text)
+
     def visit_pre(self, node):
         lang = node.find('pre_lang')
         if lang:
@@ -290,9 +248,12 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
             kwargs = {}
         return self.tag('pre', self.tag('code',self.to_html(self.visit(node).rstrip()), newline=False, **kwargs))
     
-    def visit_pre_extra(self, node):
-        return node.find('pre_text').text.strip()
+    def visit_pre_extra1(self, node):
+        return node.find('pre_text1').text.rstrip()
     
+    def visit_pre_extra2(self, node):
+        return node.find('pre_text2').text.rstrip()
+
     def visit_inline_link(self, node):
         kwargs = {'href':node[1][1]}
         if len(node[1])>3:
@@ -398,7 +359,7 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         text = []
         for line in node.find_all('quote_lines'):
             text.append(self.visit(line))
-        result = self.parse_text(''.join(text))
+        result = self.parse_text(''.join(text), 'article')
         return self.tag('blockquote', result)
         
     def visit_list_begin(self, node):
@@ -406,7 +367,7 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         return ''
         
     def visit_list_content_line(self, node):
-        return node.text
+        return node.text.strip()
     
     def visit_list_content_indent_line(self, node):
         return node.find('list_rest_of_line').text
@@ -421,13 +382,15 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         
     def visit_list_end(self, node):
         def process_node(n):
-            b = n.find('blankline')
-            text = self.visit(n)
-            t = self.parse_text(text, 'article').rstrip()
-            if t.count('<p>') == 1 and t.startswith('<p>') and t.endswith('</p>'):
-                return t[3:-4].rstrip()
-            else:
-                return t
+            txt = []
+            for node in n:
+                text = self.visit(node).rstrip()
+                t = self.parse_text(text, 'article').rstrip()
+                if text.count('\n') <= 1 and len(n) == 1 and t.count('<p>') == 1 and t.startswith('<p>') and t.endswith('</p>'):
+                    txt.append(t[3:-4].rstrip())
+                else:
+                    txt.append(t)
+            return ''.join(txt)
             
         def create_list(lists):
             buf = []
@@ -450,8 +413,23 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
             if buf:
                 buf.append('</' + parent + '>\n')
             return ''.join(buf)
-    
         return create_list(self.lists)
+    
+    def visit_dl_begin(self, node):
+        return self.tag('dl')
+    
+    def visit_dl_end(self, node):
+        return '</dl>'
+    
+    def visit_dl_dt(self, node):
+        txt = node.text.rstrip()[:-3]
+        text = self.parse_text(txt, 'words')
+        return self.tag('dt', text, enclose=1)
+    
+    def visit_dl_dd(self, node):
+        txt = self.visit(node).rstrip()
+        text = self.parse_text(txt, 'article')
+        return self.tag('dd', text, enclose=1)
     
 def parseHtml(text, template=None, tag_class=None):
     template = template or ''

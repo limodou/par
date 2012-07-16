@@ -13,7 +13,7 @@ import types
 __author__ = 'limodou'
 __author_email__ = 'limodou@gmail.com'
 __url__ = 'https://github.com/limodou/par'
-__license__ = 'GPL'
+__license__ = 'BSD'
 __version__ = '0.1'
 
 _ = re.compile

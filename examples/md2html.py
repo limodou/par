@@ -908,13 +908,40 @@ Markdown provides backslash escapes for the following characters:
 """
 
 #text = """
-#<mailto:user@example.com>
+#This is [foo][]
+#
+#[foo]: http://example.com/  (Optional Title Here)
 #"""
 
 def main(text):
     from par.md import parseHtml, parseText
-#    print parseHtml(text, template, tag_class).encode('utf8')
-    print parseText(text).encode('utf8')
+    print parseHtml(text, template, tag_class).encode('utf8')
+#    print parseText(text).encode('utf8')
+    
+def test_html(text):
+    def parseHtml(text, template=None, tag_class=None):
+        template = template or ''
+        tag_class = tag_class or {}
+        g = MarkdownGrammar()
+        resultSoFar = []
+        result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
+        v = MarkdownHtmlVisitor(template, tag_class, g)
+        print result[0].render()
+        return v.template(result)
+
+    x = parseHtml(text, '%(body)s')
+    print unicode(x, 'utf8').encode('gbk')
+
+def test_text(text):
+    def parseText(text):
+        g = MarkdownGrammar()
+        resultSoFar = []
+        result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
+        v = SimpleVisitor(g)
+        print result[0].render()
+        return v.visit(result)
+
+    print parseText(text)
     
 if __name__ == '__main__':
     import sys
@@ -923,4 +950,3 @@ if __name__ == '__main__':
     else:
         t = text
     main(t)
-
