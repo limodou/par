@@ -123,11 +123,10 @@ Do like this:
 
     print parseHtml(text, template, tag_class)
 
-Markdown Syntax Expand
+Markdown Syntax Extend
 -------------------------
 
-Table Support
-===============
+### Table Support
 
 do like this:
 
@@ -143,8 +142,7 @@ will get this:
     </tr>
     </table>
 
-Definition List support
-===========================
+### Definition List support
 
 do like this:
 
@@ -164,8 +162,7 @@ will get this:
     </dd>
     </dl>
 
-Directly links
-==================
+### Directly links
 
 You can use:
 
@@ -173,8 +170,7 @@ You can use:
 
 in text.
 
-Other text decorators
-=========================
+### Other text decorators
 
 Par.md also adds some new text decorators, such as:
 
@@ -184,8 +180,7 @@ Par.md also adds some new text decorators, such as:
     ***text***      <strong><em>text</em></strong>
     ___text___      <strong><em>text</em></strong>
 
-Bootstrap Tab Pages
-==========================
+### Bootstrap Tab Pages
 
 Support tab pages, the format is:
 
@@ -197,8 +192,7 @@ Support tab pages, the format is:
         * this is a list
         * test
 
-Bootstrap Alert
-========================
+### Bootstrap Alert
 
     [[alert(class=success)]]:
         Success
