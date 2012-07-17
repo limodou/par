@@ -200,19 +200,19 @@ Support tab pages, the format is:
 Bootstrap Alert
 ========================
 
-[[alert(class=success)]]:
-    Success
-[[alert(class=error)]]:
-    Error
-[[alert(class=info)]]:
-    Info
-[[alert]]:
-    Message
-[[alert]]:
-    #### Alert Title
-    This is alert message
-[[alert(class=info,close)]]:
-    This is an alert. It'll has a close button.
+    [[alert(class=success)]]:
+        Success
+    [[alert(class=error)]]:
+        Error
+    [[alert(class=info)]]:
+        Info
+    [[alert]]:
+        Message
+    [[alert]]:
+        #### Alert Title
+        This is alert message
+    [[alert(class=info,close)]]:
+        This is an alert. It'll has a close button.
 
 For bootstrap usage, you should invoke the code like this:
 
