@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(0, '..')
 from par.md import parseHtml
 
 def test_li_unorder1():
@@ -161,4 +163,53 @@ def test_table():
     </tr>
     </table>
     <BLANKLINE>
+    """
+
+def test_block():
+    """
+    >>> text = '''
+    ... [[tabs(id=hello.html)]]:
+    ...     ```
+    ...     This is hello
+    ...     ```
+    ... [[tabs(id=hello.html)]]:
+    ...     ```
+    ...     This is hello
+    ...     ```
+    ... '''
+    >>> from par.bootstrap_ext import blocks
+    >>> print parseHtml(text, '%(body)s', block_callback=blocks)
+    <BLANKLINE>
+    <div class="tabbable">
+    <ul class="nav nav-tabs">
+    <li class="active"><a href="#hello-html" data-toggle="tab">hello.html</a></li>
+    <li><a href="#hello-html" data-toggle="tab">hello.html</a></li>
+    </ul>
+    <div class="tab-content">
+    <div class="tab-pane active" id="hello-html">
+    <pre><code>This is hello</code></pre>
+    <BLANKLINE>
+    </div>
+    <div class="tab-pane" id="hello-html">
+    <pre><code>This is hello</code></pre>
+    <BLANKLINE>
+    </div>
+    </div>
+    </div>
+    """
+    
+def test_block():
+    """
+    >>> text = '''
+    ... [[alert(class=info,close)]]:
+    ...     This is an alert.
+    ... '''
+    >>> from par.bootstrap_ext import blocks
+    >>> print parseHtml(text, '%(body)s', block_callback=blocks)
+    <BLANKLINE>
+    <div class="alert alert-info">
+    <button class="close" data-dismiss="alert">&times;</button>
+    <p>This is an alert.</p>
+    <BLANKLINE>
+    </div>
     """

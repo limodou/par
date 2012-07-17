@@ -65,9 +65,9 @@ class Symbol(list):
             else:
                 if x.__name__ == name:
                     yield x
-                r = x.find(name)
-                if r:
-                    yield r
+                for r in x.find_all(name):
+                    if r:
+                        yield r
     
     @property
     def text(self):

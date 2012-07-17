@@ -108,6 +108,19 @@ class MarkdownGrammar(WikiGrammar):
         def dl_line(): return dl_dt, dl_dd
         def dl(): return -2, dl_line
     
+        #block
+        #   [[tabs(filename=hello.html)]]:
+        #       content
+        def block_name(): return _(r'\w+')
+        def block_kwargs_key(): return _(r'[^=,\)]+')
+        def block_kwargs_value(): return _(r'[^\),]+')
+        def block_kwargs(): return block_kwargs_key, 0, (_(r'='), block_kwargs_value)
+        def block_args(): return _(r'\('), 0, space, 0, (block_kwargs, -1, (_(r','), block_kwargs)), 0, space, _(r'\)')
+        def block_head(): return _(r'\[\['), 0, space, block_name, 0, space, 0, block_args, 0, space, _(r'\]\]:'), eol
+        def block_body(): return list_content_indent_lines
+        def block_item(): return block_head, block_body
+        def block(): return -2, block_item
+    
         #lists
         def common_text(): return _(r'(?:[^\-\+#\r\n\*>\d]|(?:\*|\+|-)\S+|>\S+|\d+\.\S+)[^\r\n]*')
         def common_line(): return common_text, eol 
@@ -165,7 +178,7 @@ class MarkdownGrammar(WikiGrammar):
         def link(): return [inline_image, refer_image, inline_link, refer_link, image_link, direct_link, mailto], -1, space
         
         #article
-        def article(): return -1, [blanklines, hr, title, refer_link_note, pre, html_block, table, list, dl, blockquote, paragraph]
+        def article(): return -1, [blanklines, hr, title, refer_link_note, pre, html_block, table, list, dl, blockquote, block, paragraph]
     
         peg_rules = {}
         for k, v in ((x, y) for (x, y) in locals().items() if isinstance(y, types.FunctionType)):
@@ -187,8 +200,8 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
     }
     tag_class = {}
     
-    def __init__(self, template=None, tag_class=None, grammar=None, title='Untitled'):
-        super(MarkdownHtmlVisitor, self).__init__(template, tag_class, grammar, title)
+    def __init__(self, template=None, tag_class=None, grammar=None, title='Untitled', block_callback=None, init_callback=None):
+        super(MarkdownHtmlVisitor, self).__init__(template, tag_class, grammar, title, block_callback, init_callback)
         self.refer_links = {}
     
     def parse_text(self, text, peg=None):
@@ -431,13 +444,13 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         text = self.parse_text(txt, 'article')
         return self.tag('dd', text, enclose=1)
     
-def parseHtml(text, template=None, tag_class=None):
+def parseHtml(text, template=None, tag_class=None, block_callback=None, init_callback=None):
     template = template or ''
     tag_class = tag_class or {}
     g = MarkdownGrammar()
     resultSoFar = []
     result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
-    v = MarkdownHtmlVisitor(template, tag_class, g)
+    v = MarkdownHtmlVisitor(template, tag_class, g, block_callback=block_callback, init_callback=init_callback)
     return v.template(result)
     
 def parseText(text):

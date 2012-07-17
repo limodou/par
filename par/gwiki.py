@@ -122,7 +122,7 @@ class WikiHtmlVisitor(SimpleVisitor):
 #</html>
 #"""
     
-    def __init__(self, template=None, tag_class=None, grammar=None, title='Untitled'):
+    def __init__(self, template=None, tag_class=None, grammar=None, title='Untitled', block_callback=None, init_callback=None):
         self._template = template or '%(body)s'
         self.title = title
         self.titles = []
@@ -130,12 +130,16 @@ class WikiHtmlVisitor(SimpleVisitor):
         self.ops = {}
         self.tag_class = tag_class or self.__class__.tag_class
         self.grammar = grammar
+        self.block_callback = block_callback or {}
+        self.init_callback = init_callback
         
     def __str__(self):
         return self.template()
     
     def template(self, node):
         body = self.visit(node, self.grammar or self.grammar.root)
+        if self.init_callback:
+            self.init_callback(self)
         if self._template:
             return self._template % {'title':self.title, 'body':body}
         else:
@@ -345,12 +349,35 @@ class WikiHtmlVisitor(SimpleVisitor):
     def visit_image_link(self, node):
         return '<img src="%s%s"/>' % (node[0].text, node[1])
     
-def parseHtml(text, template=None, tag_class=None):
+    def visit_block(self, node):
+        items = []
+        name = None
+        for n in node.find_all('block_item'):
+            x = {}
+            x['name'] = name = n.find('block_name').text.strip()
+            x['kwargs'] = y = {}
+            for t in n.find_all('block_kwargs'):
+                k = t.find('block_kwargs_key').text.strip()
+                v_node = t.find('block_kwargs_value')
+                if v_node:
+                    v = v_node.text.strip()
+                else:
+                    v = ''
+                y[k] = v
+            x['body'] = self.visit(n.find('block_body'))
+            items.append(x)
+        func = self.block_callback.get(name)
+        if func:
+            return func(self, items)
+        else:
+            return node.text
+        
+def parseHtml(text, template=None, tag_class=None, block_callback=None, init_callback=None):
     template = template or ''
     tag_class = tag_class or {}
     g = WikiGrammar()
     resultSoFar = []
-    result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
+    result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False, block_callback=block_callback, init_callback=init_callback)
     v = WikiHtmlVisitor(template, tag_class, g)
     return v.template(result)
 

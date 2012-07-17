@@ -183,3 +183,40 @@ Par.md also adds some new text decorators, such as:
     ~~text~~        <span style="text-decoration: line-through">text</span>
     ***text***      <strong><em>text</em></strong>
     ___text___      <strong><em>text</em></strong>
+
+Bootstrap Tab Pages
+==========================
+
+Support tab pages, the format is:
+
+    [[tabs(id=hello)]]:
+        ```
+        This is a test
+        ```
+    [[tabs(id=world)]]:
+        * this is a list
+        * test
+
+Bootstrap Alert
+========================
+
+[[alert(class=success)]]:
+    Success
+[[alert(class=error)]]:
+    Error
+[[alert(class=info)]]:
+    Info
+[[alert]]:
+    Message
+[[alert]]:
+    #### Alert Title
+    This is alert message
+[[alert(class=info,close)]]:
+    This is an alert. It'll has a close button.
+
+For bootstrap usage, you should invoke the code like this:
+
+    from par.md import parseHtml
+    from par.bootstrap_ext import blocks
+    
+    print parseHtml(text, template, block_callback=blocks)
