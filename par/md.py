@@ -73,7 +73,7 @@ class MarkdownGrammar(WikiGrammar):
         def indent_line_text(): return _(r'.+')
         def indent_line(): return _(r'[ ]{4}|\t'), indent_line_text, eol
         def indent_block(): return -2, [indent_line, blankline]
-        def pre_lang(): return _(r'\S+')
+        def pre_lang(): return 0, space, 0, (block_kwargs, -1, (_(r','), block_kwargs))
         def pre_b(): return _(r'```')
         def pre_e(): return _(r'```')
         def pre_text1(): return _(r'.+?(?=```)', re.M|re.DOTALL)
@@ -111,9 +111,9 @@ class MarkdownGrammar(WikiGrammar):
         #block
         #   [[tabs(filename=hello.html)]]:
         #       content
-        def block_name(): return _(r'\w+')
-        def block_kwargs_key(): return _(r'[^=,\)]+')
-        def block_kwargs_value(): return _(r'[^\),]+')
+        def block_name(): return _(r'[a-zA-Z_\-][a-zA-Z_\-0-9]*')
+        def block_kwargs_key(): return _(r'[^=,\)\n]+')
+        def block_kwargs_value(): return _(r'[^\),\n]+')
         def block_kwargs(): return block_kwargs_key, 0, (_(r'='), block_kwargs_value)
         def block_args(): return _(r'\('), 0, space, 0, (block_kwargs, -1, (_(r','), block_kwargs)), 0, space, _(r'\)')
         def block_head(): return _(r'\[\['), 0, space, block_name, 0, space, 0, block_args, 0, space, _(r'\]\]:'), eol
@@ -255,11 +255,26 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
 
     def visit_pre(self, node):
         lang = node.find('pre_lang')
+        kwargs = {}
+        cwargs = {}
         if lang:
-            kwargs = {'class':'language-'+lang.text}
-        else:
-            kwargs = {}
-        return self.tag('pre', self.tag('code',self.to_html(self.visit(node).rstrip()), newline=False, **kwargs))
+            for n in lang.find_all('block_kwargs'):
+                k = n.find('block_kwargs_key').text.strip()
+                v_node = n.find('block_kwargs_value')
+                if v_node:
+                    v = v_node.text.strip()
+                    if k == 'lang':
+                        k = 'class'
+                        v = 'language-' + v
+                        cwargs[k] = v
+                        continue
+                else:
+                    v = 'language-' + k
+                    k = 'class'
+                    cwargs[k] = v
+                    continue
+                kwargs[k] = v
+        return self.tag('pre', self.tag('code',self.to_html(self.visit(node).rstrip()), newline=False, **cwargs), **kwargs)
     
     def visit_pre_extra1(self, node):
         return node.find('pre_text1').text.rstrip()

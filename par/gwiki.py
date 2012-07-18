@@ -150,7 +150,9 @@ class WikiHtmlVisitor(SimpleVisitor):
         if isinstance(peg, (str, unicode)):
             peg = g[peg]
         resultSoFar = []
-        result, rest = g.parse(text, root=peg, resultSoFar=resultSoFar, skipWS=False)
+        result, rest = g.parse(text, root=peg, resultSoFar=resultSoFar, 
+            skipWS=False, block_callback=self.block_callback, 
+            init_callback=self.init_callback)
         v = self.__class__('', self.tag_class, g)
         return v.visit(result, peg)
     

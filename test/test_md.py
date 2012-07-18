@@ -213,3 +213,71 @@ def test_block():
     <BLANKLINE>
     </div>
     """
+    
+def test_pre_1():
+    """
+    >>> text = '''
+    ... ```lang=python,id=test
+    ... a
+    ... b
+    ... c
+    ... ```
+    ... '''
+    >>> print parseHtml(text, '%(body)s')
+    <BLANKLINE>
+    <pre id="test"><code class="language-python">a
+    b
+    c</code></pre>
+    <BLANKLINE>
+    """
+    
+def test_pre_2():
+    """
+    >>> text = '''
+    ... ```python
+    ... a
+    ... b
+    ... c
+    ... ```
+    ... '''
+    >>> print parseHtml(text, '%(body)s')
+    <BLANKLINE>
+    <pre><code class="language-python">a
+    b
+    c</code></pre>
+    <BLANKLINE>
+    """
+
+def test_pre_3():
+    """
+    >>> text = '''
+    ... ```id=test
+    ... a
+    ... b
+    ... c
+    ... ```
+    ... '''
+    >>> print parseHtml(text, '%(body)s')
+    <BLANKLINE>
+    <pre id="test"><code>a
+    b
+    c</code></pre>
+    <BLANKLINE>
+    """
+
+def test_pre_4():
+    """
+    >>> text = '''
+    ... ```
+    ... a
+    ... b
+    ... c
+    ... ```
+    ... '''
+    >>> print parseHtml(text, '%(body)s')
+    <BLANKLINE>
+    <pre><code>a
+    b
+    c</code></pre>
+    <BLANKLINE>
+    """
