@@ -70,10 +70,11 @@ class MarkdownGrammar(WikiGrammar):
         def blanklines(): return -2, blankline
     
         #custome inline tag
-        def inline_tag_name(): return _(r'[^\}]*')
+        def inline_tag_name(): return _(r'[^\}:]*')
         def inline_tag_index(): return _(r'[^\]]*')
+        def inline_tag_class(): return _(r'[^\}:]*')
         def inline_tag():
-            return _(r'\{'), inline_tag_name, _(r'\}'), 0, space, _(r'\['), inline_tag_index, _(r'\]')
+            return _(r'\{'), inline_tag_name, 0, (_(r':'), inline_tag_class), _(r'\}'), 0, space, _(r'\['), inline_tag_index, _(r'\]')
     
         #pre
         def indent_line_text(): return _(r'.+')
@@ -466,10 +467,15 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         return self.tag('dd', text, enclose=1)
     
     def visit_inline_tag(self, node):
-        _cls = node.find('inline_tag_index').text.strip()
-        _name = node.find('inline_tag_name').text.strip()
-        _cls = _cls or _name
-        return '<span class="inline-tag" data-rel="'+_cls+'">'+_name+'</span>'
+        rel = node.find('inline_tag_index').text.strip()
+        name = node.find('inline_tag_name').text.strip()
+        _c = node.find('inline_tag_class')
+        rel = rel or name
+        if _c:
+            cls = ' '+_c.text.strip()
+        else:
+            cls = ''
+        return ('<span class="inline-tag%s" data-rel="' % cls )+rel+'">'+name+'</span>'
             
     
 def parseHtml(text, template=None, tag_class=None, block_callback=None, init_callback=None):
