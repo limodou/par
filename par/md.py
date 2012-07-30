@@ -63,11 +63,17 @@ class MarkdownGrammar(WikiGrammar):
         def underscore_words(): return _(r'[\w\d]+_[\w\d]+[\w\d_]*')
         def word(): return [escape_string, code_string, 
             code_string_short, htmlentity, underscore_words, op, link, 
-            html_inline_block, string, default_string]
+            html_inline_block, inline_tag, string, default_string]
         def words(): return [simple_op, word], -1, [simple_op, space, word]
         def line(): return 0, space, words, eol
         def paragraph(): return line, -1, (0, space, common_line), -1, blanklines
         def blanklines(): return -2, blankline
+    
+        #custome inline tag
+        def inline_tag_name(): return _(r'[^\}]*')
+        def inline_tag_index(): return _(r'[^\]]*')
+        def inline_tag():
+            return _(r'\{'), inline_tag_name, _(r'\}'), 0, space, _(r'\['), inline_tag_index, _(r'\]')
     
         #pre
         def indent_line_text(): return _(r'.+')
@@ -458,6 +464,13 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         txt = self.visit(node).rstrip()
         text = self.parse_text(txt, 'article')
         return self.tag('dd', text, enclose=1)
+    
+    def visit_inline_tag(self, node):
+        _cls = node.find('inline_tag_index').text.strip()
+        _name = node.find('inline_tag_name').text.strip()
+        _cls = _cls or _name
+        return '<span class="inline-tag" data-rel="'+_cls+'">'+_name+'</span>'
+            
     
 def parseHtml(text, template=None, tag_class=None, block_callback=None, init_callback=None):
     template = template or ''
