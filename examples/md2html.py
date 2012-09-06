@@ -899,8 +899,8 @@ Markdown provides backslash escapes for the following characters:
     []  square brackets
     ()  parentheses
     #   hash mark
-	+	plus sign
-	-	minus sign (hyphen)
+    +   plus sign
+    -   minus sign (hyphen)
     .   dot
     !   exclamation mark
 
@@ -908,9 +908,9 @@ Markdown provides backslash escapes for the following characters:
 """
 
 #text = """
-#This is [foo][]
-#
-#[foo]: http://example.com/  (Optional Title Here)
+#abc 1_2  _3_ __a  bc__ http://localhost:8000
+#* abc
+#    * cde
 #"""
 
 def main(text):

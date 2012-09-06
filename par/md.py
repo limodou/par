@@ -30,6 +30,9 @@ class MarkdownGrammar(WikiGrammar):
         super(MarkdownGrammar, self).__init__()
         
     def _get_rules(self):
+        # 0 ?
+        # -1 *
+        # -2 +
         #basic
         def ws(): return _(r'\s+')
         def space(): return _(r'[ \t]+')
@@ -61,10 +64,14 @@ class MarkdownGrammar(WikiGrammar):
         def code_string(): return _(r'``'), _(r'.+(?=``)'), _(r'``')
         def default_string(): return _(r'\S+', re.U)
         def underscore_words(): return _(r'[\w\d]+_[\w\d]+[\w\d_]*')
+#        def word(): return [escape_string, code_string, 
+#            code_string_short, htmlentity, underscore_words, op, link, 
+#            html_inline_block, inline_tag, string, default_string]
         def word(): return [escape_string, code_string, 
-            code_string_short, htmlentity, underscore_words, op, link, 
-            html_inline_block, inline_tag, string, default_string]
-        def words(): return [simple_op, word], -1, [simple_op, space, word]
+            code_string_short, htmlentity, link, 
+            html_inline_block, inline_tag, default_string]
+#        def words(): return [simple_op, word], -1, [simple_op, space, word]
+        def words(): return -1, [word, space]
         def line(): return 0, space, words, eol
         def paragraph(): return line, -1, (0, space, common_line), -1, blanklines
         def blanklines(): return -2, blankline
@@ -203,13 +210,15 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         '~~':['<span style="text-decoration: line-through">', '</span>'],
         '^':['<sup>', '</sup>'],
         ',,':['<sub>', '</sub>'],
-        '`':['<code>', '</code>'],
     }
     tag_class = {}
     
     def __init__(self, template=None, tag_class=None, grammar=None, title='Untitled', block_callback=None, init_callback=None):
         super(MarkdownHtmlVisitor, self).__init__(template, tag_class, grammar, title, block_callback, init_callback)
         self.refer_links = {}
+        
+        self.chars = self.op_maps.keys()
+        self.chars.sort(cmp=lambda x,y:cmp(len(y), len(x)))
     
     def parse_text(self, text, peg=None):
         g = self.grammar
@@ -220,6 +229,51 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         v = self.__class__('', self.tag_class, g)
         v.refer_links = self.refer_links
         return v.visit(result, peg)
+    
+    def process_line(self, line):
+        chars = self.chars
+        op_maps = self.op_maps
+        
+        buf = []
+        pos = []    #stack of special chars
+        for i in line.split():
+            left = i
+            
+            #process begin match
+            for c in chars:
+                if left.startswith(c):
+                    p = left[len(c):]
+                    if p:
+                        buf.append(c)
+                        pos.append(len(buf)-1)
+                        left = p
+                    else:
+                        buf.append(left)
+                        left = ''
+                    break
+                
+            #process end match
+            if left:
+                for c in chars:
+                    if left.endswith(c):
+                        p = left[:-len(c)]
+                        if p:
+                            while len(pos) > 0:
+                                t = pos.pop()
+                                if buf[t] == c:
+                                    buf[t] = op_maps[c][0]
+                                    buf.append(p)
+                                    buf.append(op_maps[c][1])
+                                    buf.append(' ')
+                                    left = ''
+                                    break
+                        break
+                    
+            if left:
+                buf.append(left)
+                buf.append(' ')
+        return ''.join(buf)
+    
     
     def visit_string(self, node):
         return self.to_html(node.text)
@@ -258,7 +312,7 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
     def visit_paragraph(self, node):
         txt = node.text.rstrip().replace('\n', ' ')
         text = self.parse_text(txt, 'words')
-        return self.tag('p', text)
+        return self.tag('p', self.process_line(text))
 
     def visit_pre(self, node):
         lang = node.find('pre_lang')
