@@ -62,7 +62,7 @@ class MarkdownGrammar(WikiGrammar):
         def string(): return _(r'[^\\\*_\^~ \t\r\n`,<\[]+', re.U)
         def code_string_short(): return _(r'`'), _(r'[^`]*'), _(r'`')
         def code_string(): return _(r'``'), _(r'.+(?=``)'), _(r'``')
-        def default_string(): return _(r'\S+', re.U)
+        def default_string(): return _(r'\S+')
         def underscore_words(): return _(r'[\w\d]+_[\w\d]+[\w\d_]*')
 #        def word(): return [escape_string, code_string, 
 #            code_string_short, htmlentity, underscore_words, op, link, 
@@ -236,8 +236,10 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         
         buf = []
         pos = []    #stack of special chars
-        for i in line.split():
-            left = i
+        i = 0
+        codes = re.split('([ \t\r\n]+)', line)
+        while i<len(codes):
+            left = codes[i]
             
             #process begin match
             for c in chars:
@@ -264,14 +266,17 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
                                     buf[t] = op_maps[c][0]
                                     buf.append(p)
                                     buf.append(op_maps[c][1])
-                                    buf.append(' ')
                                     left = ''
                                     break
                         break
                     
             if left:
                 buf.append(left)
-                buf.append(' ')
+        
+            i += 1
+            if i < len(codes):
+                buf.append(codes[i])
+                i += 1
         return ''.join(buf)
     
     
@@ -408,7 +413,7 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
             e = len(t)
         b = t.find('://') + 3
         href = t[b:e]
-        return self.tag('a', href, href=href)
+        return self.tag('a', href, newline=False, href=href)
     
     def visit_image_link(self, node):
         t = node.text
