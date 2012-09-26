@@ -411,8 +411,9 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
             e = -1
         else:
             e = len(t)
-        b = t.find('://') + 3
-        href = t[b:e]
+#        b = t.find('://') + 3
+#        href = t[b:e]
+        href = t
         return self.tag('a', href, newline=False, href=href)
     
     def visit_image_link(self, node):
