@@ -19,7 +19,7 @@ markdown syntax, for example, it support: difinition list, table, direct link, e
 License
 ------------
 
-Plugs is released under BSD license. 
+Par is released under BSD license. 
 
 """
 
