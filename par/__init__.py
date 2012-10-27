@@ -4,7 +4,7 @@
 # Author: limodou@gmail.com
 # This program is based on pyPEG
 #
-# license: GPL
+# license: BSD
 #
 from pyPEG import *
 import re
