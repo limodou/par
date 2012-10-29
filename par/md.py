@@ -135,6 +135,18 @@ class MarkdownGrammar(WikiGrammar):
         def block_item(): return block_head, block_body
         def block(): return -2, block_item
     
+        #new block
+        #  {% blockname(para_name=para_value[, para_name, para_name=para_value]) %}
+        #  content
+        #  {% endblockname %}
+        def new_block_args(): return 0, space, 0, (block_kwargs, -1, (_(r','), block_kwargs)), 0, space
+        def new_block_name(): return _(r'([a-zA-Z_\-][a-zA-Z_\-0-9]*)')
+        def new_block_head(): return _(r'\{%'), 0, space, new_block_name, new_block_args, _r('%\}'), eol
+        def new_block_end(): return _(r'\{%'), 0, space, _(r'end\1'), 0, space, _(r'%\}'), eol
+        def new_block_item(): return new_block_head, new_block_body, new_block_end
+#        def new_block(): return -2, new_block_item
+        def new_block(): return _(r'\{%\s*([a-zA-Z_\-][a-zA-Z_\-0-9]*)(.*?)%\}(.*?)\{%\s*end\1\s*%\}', re.DOTALL), eol
+        
         #lists
         def common_text(): return _(r'(?:[^\-\+#\r\n\*>\d]|(?:\*|\+|-)\S+|>\S+|\d+\.\S+)[^\r\n]*')
         def common_line(): return common_text, eol 
@@ -192,7 +204,7 @@ class MarkdownGrammar(WikiGrammar):
         def link(): return [inline_image, refer_image, inline_link, refer_link, image_link, direct_link, mailto], -1, space
         
         #article
-        def article(): return -1, [blanklines, hr, title, refer_link_note, pre, html_block, table, list, dl, blockquote, block, paragraph]
+        def article(): return -1, [blanklines, hr, title, refer_link_note, pre, html_block, table, list, dl, blockquote, block, new_block, paragraph]
     
         peg_rules = {}
         for k, v in ((x, y) for (x, y) in locals().items() if isinstance(y, types.FunctionType)):
@@ -537,7 +549,33 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
             cls = ''
         return ('<span class="inline-tag%s" data-rel="' % cls )+rel+'">'+name+'</span>'
             
-    
+    def visit_new_block(self, node):
+        block = {}
+        r = re.compile(r'\{%\s*([a-zA-Z_\-][a-zA-Z_\-0-9]*)\s*(.*?)%\}(.*?)\{%\s*end\1\s*%\}', re.DOTALL)
+        m = r.match(node.text)
+        if m:
+            block['name'] = m.group(1)
+            block_args = m.group(2).strip()
+            block['body'] = m.group(3).strip()
+            
+            resultSoFar = []
+            result, rest = self.grammar.parse(block_args, root=self.grammar['new_block_args'], resultSoFar=resultSoFar, skipWS=False)
+            kwargs = {}
+            for node in result[0].find_all('block_kwargs'):
+                k = node.find('block_kwargs_key').text
+                v = node.find('block_kwargs_value')
+                if v:
+                    v = v.text
+                kwargs[k] = v
+            
+            block['kwargs'] = kwargs
+            
+        func = self.block_callback.get(block['name'])
+        if func:
+            return func(self, block)
+        else:
+            return node.text
+        
 def parseHtml(text, template=None, tag_class=None, block_callback=None, init_callback=None):
     template = template or ''
     tag_class = tag_class or {}

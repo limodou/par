@@ -23,7 +23,7 @@ Par is released under BSD license.
 
 """
 
-from uliweb.utils.setup import setup
+from setuptools import setup
 import par
 
 setup(name='par',
