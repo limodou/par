@@ -1,6 +1,11 @@
 Par ChangeLog
 ===============
 
+0.5
+---------
+
+* Fix td column parse error
+
 0.4
 ---------
 

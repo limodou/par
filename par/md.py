@@ -112,7 +112,8 @@ class MarkdownGrammar(WikiGrammar):
         def title(): return [title6, title5, title4, title3, title2, title1]
     
         #table
-        def table_column(): return -2, [space, escape_string, code_string_short, code_string, op, link, _(r'[^\\\*_\^~ \t\r\n`,\|]+', re.U)], _(r'\|\|')
+#        def table_column(): return -2, [space, escape_string, code_string_short, code_string, op, link, _(r'[^\\\*_\^~ \t\r\n`,\|]+', re.U)], _(r'\|\|')
+        def table_column(): return _(r'.+?(?=\|\|)'), _(r'\|\|')
         def table_line(): return _(r'\|\|'), -2, table_column, eol
         def table(): return -2, table_line, -1, blankline
     
@@ -575,6 +576,10 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
             return func(self, block)
         else:
             return node.text
+        
+    def visit_table_column(self, node):
+        return self.tag('td', self.process_line(node.text[:-2].strip()), newline=False)
+    
         
 def parseHtml(text, template=None, tag_class=None, block_callback=None, init_callback=None):
     template = template or ''
