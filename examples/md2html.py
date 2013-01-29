@@ -907,11 +907,11 @@ Markdown provides backslash escapes for the following characters:
 
 """
 
-#text = """
-#abc 1_2  _3_ __a  bc__ http://localhost:8000/hell_owo_rld `a  b  d`
-#* abc
-#    * cde
-#"""
+text = """
+{% alert class=info,close %}
+This is an alert. It'll has a close button.
+{% endalert %}
+"""
 
 def main(text):
     from par.md import parseHtml, parseText
@@ -919,17 +919,19 @@ def main(text):
 #    print parseText(text).encode('utf8')
     
 def test_html(text):
-    def parseHtml(text, template=None, tag_class=None):
+    from par.bootstrap_ext import blocks
+
+    def parseHtml(text, template=None, tag_class=None, block_callback=None, init_callback=None):
         template = template or ''
         tag_class = tag_class or {}
         g = MarkdownGrammar()
         resultSoFar = []
         result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
-        v = MarkdownHtmlVisitor(template, tag_class, g)
+        v = MarkdownHtmlVisitor(template, tag_class, g, block_callback=block_callback, init_callback=init_callback)
         print result[0].render()
         return v.template(result)
 
-    x = parseHtml(text, '%(body)s')
+    x = parseHtml(text, '%(body)s', block_callback=blocks)
     print unicode(x, 'utf8').encode('gbk')
 
 def test_text(text):
@@ -949,4 +951,4 @@ if __name__ == '__main__':
         t = open(sys.argv[1]).read()
     else:
         t = text
-    main(t)
+    test_html(t)

@@ -137,7 +137,7 @@ class MarkdownGrammar(WikiGrammar):
         def block(): return -2, block_item
     
         #new block
-        #  {% blockname(para_name=para_value[, para_name, para_name=para_value]) %}
+        #  {% blockname para_name=para_value[, para_name, para_name=para_value] %}
         #  content
         #  {% endblockname %}
         def new_block_args(): return 0, space, 0, (block_kwargs, -1, (_(r','), block_kwargs)), 0, space
@@ -226,8 +226,10 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
     }
     tag_class = {}
     
-    def __init__(self, template=None, tag_class=None, grammar=None, title='Untitled', block_callback=None, init_callback=None):
-        super(MarkdownHtmlVisitor, self).__init__(template, tag_class, grammar, title, block_callback, init_callback)
+    def __init__(self, template=None, tag_class=None, grammar=None, 
+        title='Untitled', block_callback=None, init_callback=None):
+        super(MarkdownHtmlVisitor, self).__init__(template, tag_class, 
+            grammar, title, block_callback, init_callback)
         self.refer_links = {}
         
         self.chars = self.op_maps.keys()
@@ -239,7 +241,8 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
             peg = g[peg]
         resultSoFar = []
         result, rest = g.parse(text, root=peg, resultSoFar=resultSoFar, skipWS=False)
-        v = self.__class__('', self.tag_class, g)
+        v = self.__class__('', self.tag_class, g, block_callback=self.block_callback,
+        init_callback=self.init_callback)
         v.refer_links = self.refer_links
         return v.visit(result, peg)
     
@@ -551,7 +554,7 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         return ('<span class="inline-tag%s" data-rel="' % cls )+rel+'">'+name+'</span>'
             
     def visit_new_block(self, node):
-        block = {}
+        block = {'new':True}
         r = re.compile(r'\{%\s*([a-zA-Z_\-][a-zA-Z_\-0-9]*)\s*(.*?)%\}(.*?)\{%\s*end\1\s*%\}', re.DOTALL)
         m = r.match(node.text)
         if m:

@@ -1,6 +1,12 @@
 Par ChangeLog
 ===============
 
+0.6
+---------
+
+* Fix user defined block process bug in indent text
+* Refactor old user defined tag to new style
+
 0.5
 ---------
 
