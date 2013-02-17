@@ -578,7 +578,8 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         if func:
             return func(self, block)
         else:
-            return node.text
+            return ''
+#            return node.text
         
     def visit_table_column(self, node):
         return self.tag('td', self.process_line(node.text[:-2].strip()), newline=False)

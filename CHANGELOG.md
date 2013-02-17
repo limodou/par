@@ -6,6 +6,7 @@ Par ChangeLog
 
 * Fix user defined block process bug in indent text
 * Refactor old user defined tag to new style
+* Fix output empty string when the undefined blocks are parsed 
 
 0.5
 ---------
