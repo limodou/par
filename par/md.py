@@ -114,8 +114,8 @@ class MarkdownGrammar(WikiGrammar):
         
         #subject
         def title_id(): return _(r'\{#.*?\}')
-        def setext_title1(): return _(r'.+(?=\{#)|.+'), 0, title_id, blankline, _(r'={1,}'), -2, blankline
-        def setext_title2(): return _(r'.+(?=\{#)|.+'), 0, title_id, blankline, _(r'-{1,}'), -2, blankline
+        def setext_title1(): return title_text, 0, title_id, blankline, _(r'={1,}'), -2, blankline
+        def setext_title2(): return title_text, 0, title_id, blankline, _(r'-{1,}'), -2, blankline
         def title_text(): return _(r'.+?(?= #| \{#)|.+', re.U)
         def atx_title1(): return _(r'# '), title_text, 0, _(r' #+'), 0, space, 0, title_id, -2, blankline
         def atx_title2(): return _(r'## '), title_text, 0, _(r' #+'), 0, space, 0, title_id, -2, blankline

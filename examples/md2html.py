@@ -929,6 +929,9 @@ text = """
 
 ### aaaaa
 
+adfaf
+======
+
 That's some text with a footnote.[^1]
 
 [^1]: **aaaa**
