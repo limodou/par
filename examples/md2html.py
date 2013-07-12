@@ -907,10 +907,76 @@ Markdown provides backslash escapes for the following characters:
 
 """
 
+"""
+I get 10 times more traffic from [Google] [1] than from
+[Yahoo] [2] or [MSN] [3].
+
+  [1]: http://google.com/        "Google"
+  [2]: http://search.yahoo.com/  "Yahoo Search"
+  [3]: http://search.msn.com/    "MSN Search"
+
+I get 10 times more traffic from [Google][] than from
+[Yahoo][] or [MSN][].
+
+  [google]: http://google.com/        "Google"
+  [yahoo]:  http://search.yahoo.com/  "Yahoo Search"
+  [msn]:    http://search.msn.com/    "MSN Search"
+
+
+"""
+
 text = """
-{% alert class=info,close %}
-This is an alert. It'll has a close button.
-{% endalert %}
+
+### aaaaa
+
+That's some text with a footnote.[^1]
+
+[^1]: **aaaa**
+
+as_asdf_asdf_adf _asdf_
+"""
+
+"""
+[](http://aaaa.com)
+![](http://aaaa.com)
+[](page)
+<http://aaaa.com>
+[[Page]]
+[[#edit]]
+
+"""
+"""
+[[Page|Hello world]]
+[[Page#title|Hello world]]
+[[wiki:Page|Hello world]]
+
+[[image:a.png]]
+[[image:a.png|right]]
+[[image:a.png||250]]
+<Page>
+<http://localhost:8000>
+
+test
+=====
+
+
+test  {#test}
+====
+
+## hello ## {#hello}
+
+### subject ### {#subject}
+### subject {#subject}
+
+[link to anchor](#anchor)
+
+```
+sfasdf
+```
+
+~~~~~~
+asfadsf
+~~~~~~
 """
 
 def main(text):

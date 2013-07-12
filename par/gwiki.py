@@ -164,9 +164,23 @@ class WikiHtmlVisitor(SimpleVisitor):
             2 => <tag></tag>
         """
         kw = kwargs.copy()
+        if '_class' in kw:
+            kw['class'] = kw.pop('_class')
         _class = self.tag_class.get(tag, '')
         if _class:
             kw['class'] = _class
+        
+        #process inner and outter link
+        if tag == 'a':
+            if kw['href'].startswith('http:') or kw['href'].startswith('https:') or kw['href'].startswith('ftp:'):
+                _cls = 'outter'
+            else:
+                _cls = 'inner'
+            if kw.get('class'):
+                kw['class'] = kw['class'] + ' ' + _cls
+            else:
+                kw['class'] = _cls
+            
         attrs = ' '.join(['%s="%s"' % (x, y) for x, y in kw.items()])
         if attrs:
             attrs = ' ' + attrs
@@ -187,7 +201,7 @@ class WikiHtmlVisitor(SimpleVisitor):
         for x in range(begin, level+1):
             y = self.titles_ids.setdefault(x, 0)
             _ids.append(y)
-        return 'title_%s' % '.'.join(map(str, _ids))
+        return 'title_%s' % '-'.join(map(str, _ids))
     
     def visit_eol(self, node):
         return '\n'

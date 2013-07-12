@@ -18,6 +18,17 @@
 #     Fenced code blocks
 #     Syntax highlighting
 #
+#   2013/7/11
+#    * Add wiki_link support [[xxx]]
+#    * Remove old block support
+#    * Add head line id support
+#        ## header2 ## {#id}
+#    * Add ~~~ code block support
+#    * Add inner and outter anchor class
+#    * Add header anchor notation 
+#    * Add footnote support
+#
+#
 from par.pyPEG import *
 import re
 import types
@@ -68,13 +79,19 @@ class MarkdownGrammar(WikiGrammar):
 #            code_string_short, htmlentity, underscore_words, op, link, 
 #            html_inline_block, inline_tag, string, default_string]
         def word(): return [escape_string, code_string, 
-            code_string_short, htmlentity, link, 
-            html_inline_block, inline_tag, default_string]
+            code_string_short, htmlentity, footnote, link, 
+            html_inline_block, inline_tag, string, default_string]
 #        def words(): return [simple_op, word], -1, [simple_op, space, word]
         def words(): return -1, [word, space]
         def line(): return 0, space, words, eol
         def paragraph(): return line, -1, (0, space, common_line), -1, blanklines
         def blanklines(): return -2, blankline
+    
+        #footnote
+        def footnote(): return _(r'\[\^\w+\]')
+        def footnote_text(): return list_first_para, -1, [list_content_indent_lines, list_content_lines]
+        def footnote_desc():
+            return footnote, _(r':'), footnote_text
     
         #custome inline tag
         def inline_tag_name(): return _(r'[^\}:]*')
@@ -88,27 +105,26 @@ class MarkdownGrammar(WikiGrammar):
         def indent_line(): return _(r'[ ]{4}|\t'), indent_line_text, eol
         def indent_block(): return -2, [indent_line, blankline]
         def pre_lang(): return 0, space, 0, (block_kwargs, -1, (_(r','), block_kwargs))
-        def pre_b(): return _(r'```')
-        def pre_e(): return _(r'```')
-        def pre_text1(): return _(r'.+?(?=```)', re.M|re.DOTALL)
+        def pre_text1(): return _(r'.+?(?=```|~~~)', re.M|re.DOTALL)
         def pre_text2(): return _(r'.+?(?=</code>)', re.M|re.DOTALL)
-        def pre_extra1(): return _(r'```'), 0, pre_lang, 0, space, eol, pre_text1, _(r'```'), -2, blankline
+        def pre_extra1(): return _(r'```|~{3,}'), 0, pre_lang, 0, space, eol, pre_text1, _(r'```|~{3,}'), -2, blankline
         def pre_extra2(): return _(r'<code>'), 0, pre_lang, 0, space, eol, pre_text2, _(r'</code>'), -2, blankline
         def pre(): return [indent_block, pre_extra1, pre_extra2]
     
         
         #subject
-        def setext_title1(): return _(r'.+'), blankline, _(r'={1,}'), -2, blankline
-        def setext_title2(): return _(r'.+'), blankline, _(r'-{1,}'), -2, blankline
-        def title_text(): return _(r'.+(?= #)|.+', re.U)
-        def atx_title1(): return _(r'# '), title_text, 0, _(r' #+'), -2, blankline
-        def atx_title2(): return _(r'## '), title_text, 0, _(r' #+'), -2, blankline
+        def title_id(): return _(r'\{#.*?\}')
+        def setext_title1(): return _(r'.+(?=\{#)|.+'), 0, title_id, blankline, _(r'={1,}'), -2, blankline
+        def setext_title2(): return _(r'.+(?=\{#)|.+'), 0, title_id, blankline, _(r'-{1,}'), -2, blankline
+        def title_text(): return _(r'.+?(?= #| \{#)|.+', re.U)
+        def atx_title1(): return _(r'# '), title_text, 0, _(r' #+'), 0, space, 0, title_id, -2, blankline
+        def atx_title2(): return _(r'## '), title_text, 0, _(r' #+'), 0, space, 0, title_id, -2, blankline
         def title1(): return [atx_title1, setext_title1]
         def title2(): return [atx_title2, setext_title2]
-        def title3(): return _(r'### '), title_text, 0, _(r' #+'), -2, blankline
-        def title4(): return _(r'#### '), title_text, 0, _(r' #+'), -2, blankline
-        def title5(): return _(r'##### '), title_text, 0, _(r' #+'), -2, blankline
-        def title6(): return _(r'###### '), title_text, 0, _(r' #+'), -2, blankline
+        def title3(): return _(r'### '), title_text, 0, _(r' #+'), 0, space, 0, title_id, -2, blankline
+        def title4(): return _(r'#### '), title_text, 0, _(r' #+'), 0, space, 0, title_id, -2, blankline
+        def title5(): return _(r'##### '), title_text, 0, _(r' #+'), 0, space, 0, title_id, -2, blankline
+        def title6(): return _(r'###### '), title_text, 0, _(r' #+'), 0, space, 0, title_id, -2, blankline
         def title(): return [title6, title5, title4, title3, title2, title1]
     
         #table
@@ -126,15 +142,15 @@ class MarkdownGrammar(WikiGrammar):
         #block
         #   [[tabs(filename=hello.html)]]:
         #       content
-        def block_name(): return _(r'[a-zA-Z_\-][a-zA-Z_\-0-9]*')
+#        def block_name(): return _(r'[a-zA-Z_\-][a-zA-Z_\-0-9]*')
         def block_kwargs_key(): return _(r'[^=,\)\n]+')
         def block_kwargs_value(): return _(r'[^\),\n]+')
         def block_kwargs(): return block_kwargs_key, 0, (_(r'='), block_kwargs_value)
-        def block_args(): return _(r'\('), 0, space, 0, (block_kwargs, -1, (_(r','), block_kwargs)), 0, space, _(r'\)')
-        def block_head(): return _(r'\[\['), 0, space, block_name, 0, space, 0, block_args, 0, space, _(r'\]\]:'), eol
-        def block_body(): return list_content_indent_lines
-        def block_item(): return block_head, block_body
-        def block(): return -2, block_item
+#        def block_args(): return _(r'\('), 0, space, 0, (block_kwargs, -1, (_(r','), block_kwargs)), 0, space, _(r'\)')
+#        def block_head(): return _(r'\[\['), 0, space, block_name, 0, space, 0, block_args, 0, space, _(r'\]\]:'), eol
+#        def block_body(): return list_content_indent_lines
+#        def block_item(): return block_head, block_body
+#        def block(): return -2, block_item
     
         #new block
         #  {% blockname para_name=para_value[, para_name, para_name=para_value] %}
@@ -177,8 +193,9 @@ class MarkdownGrammar(WikiGrammar):
         def direct_link(): return _(r'(<)?(?:http://|https://|ftp://)[\w\d\-\.,@\?\^=%&:/~+#]+(?(1)>)')
         def image_link(): return _(r'(<)?(?:http://|https://|ftp://).*?(?:\.png|\.jpg|\.gif|\.jpeg)(?(1)>)', re.I)
         def mailto(): return _(r'<(mailto:)?[a-zA-Z_0-9-/\.]+@[a-zA-Z_0-9-/\.]+>')
-        
-        def inline_text(): return _(r'[^\]]*')
+        def wiki_link(): return _(r'(\[\[)(.*?)((1)?\]\])')
+    
+        def inline_text(): return _(r'[^\]\^]*')
         def inline_image_alt(): return _(r'!\['), inline_text, _(r'\]')
         def inline_image_title(): return literal
         def inline_href(): return _(r'[^\s\)]+')
@@ -188,24 +205,23 @@ class MarkdownGrammar(WikiGrammar):
         def refer_image_alt(): return _(r'!\['), inline_text, _(r'\]')
         def refer_image_refer(): return _(r'[^\]]*')
         def refer_image(): return refer_image_alt, 0, space, _(r'\['), refer_image_refer, _(r'\]')
-        def refer_image_link(): return 0, _(r'(<)?(\S+)(?(1)>)')
         def refer_image_title(): return [literal, literal1, '\(.*?\)']
         
-        def inline_link_caption(): return _(r'\['), _(r'[^\]]+'), _(r'\]')
+        def inline_link_caption(): return _(r'\['), _(r'[^\]\^]*'), _(r'\]')
         def inline_link_title(): return literal
         def inline_link_link(): return _(r'\('), _(r'[^\s\)]+'), 0, space, 0, inline_link_title, 0, space, _(r'\)')
         def inline_link(): return inline_link_caption, inline_link_link
         
-        def refer_link_caption(): return _(r'\['), _(r'[^\]]+'), _(r'\]')
+        def refer_link_caption(): return _(r'\['), _(r'[^\]\^]*'), _(r'\]')
         def refer_link_refer(): return _(r'[^\]]*')
         def refer_link(): return refer_link_caption, 0, space, _(r'\['), refer_link_refer, _(r'\]')
         def refer_link_link(): return 0, _(r'(<)?(\S+)(?(1)>)')
         def refer_link_title(): return [_(r'\([^\)]*\)'), literal, literal1]
         def refer_link_note(): return 0, _(r' {1,3}'), inline_link_caption, _(r':'), space, refer_link_link, 0, (ws, refer_link_title), -2, blankline
-        def link(): return [inline_image, refer_image, inline_link, refer_link, image_link, direct_link, mailto], -1, space
+        def link(): return [inline_image, refer_image, inline_link, refer_link, image_link, direct_link, wiki_link, mailto], -1, space
         
         #article
-        def article(): return -1, [blanklines, hr, title, refer_link_note, pre, html_block, table, list, dl, blockquote, block, new_block, paragraph]
+        def article(): return -1, [blanklines, hr, title, refer_link_note, pre, html_block, table, list, dl, blockquote, new_block, footnote_desc, paragraph]
     
         peg_rules = {}
         for k, v in ((x, y) for (x, y) in locals().items() if isinstance(y, types.FunctionType)):
@@ -227,13 +243,17 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
     tag_class = {}
     
     def __init__(self, template=None, tag_class=None, grammar=None, 
-        title='Untitled', block_callback=None, init_callback=None):
+        title='Untitled', block_callback=None, init_callback=None, 
+        wiki_prefix='/wiki/', footnote_id=None):
         super(MarkdownHtmlVisitor, self).__init__(template, tag_class, 
             grammar, title, block_callback, init_callback)
         self.refer_links = {}
         
         self.chars = self.op_maps.keys()
         self.chars.sort(cmp=lambda x,y:cmp(len(y), len(x)))
+        self.wiki_prefix = wiki_prefix
+        self.footnote_id = footnote_id or 1
+        self.footnodes = []
     
     def parse_text(self, text, peg=None):
         g = self.grammar
@@ -242,9 +262,12 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         resultSoFar = []
         result, rest = g.parse(text, root=peg, resultSoFar=resultSoFar, skipWS=False)
         v = self.__class__('', self.tag_class, g, block_callback=self.block_callback,
-        init_callback=self.init_callback)
+        init_callback=self.init_callback, wiki_prefix=self.wiki_prefix,
+        footnote_id=self.footnote_id)
         v.refer_links = self.refer_links
-        return v.visit(result, peg)
+        r =v.visit(result)
+        self.footnote_id = v.footnote_id
+        return r
     
     def process_line(self, line):
         chars = self.chars
@@ -302,10 +325,18 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
     def visit_blanklines(self, node):
         return '\n'
     
+    def _get_title(self, node, level):
+        if node.find('title_id'):
+            _id = node.find('title_id').text[2:-1]
+        else:
+            _id = self.get_title_id(level)
+        anchor = '<a class="anchor" href="#%s">&para;</a>' % _id
+        title = node.find('title_text').text.strip()
+        self.titles.append((level, _id, title))
+        return self.tag('h'+str(level), title + anchor, id=_id)
+        
     def visit_title1(self, node):
-        _id = self.get_title_id(1)
-        self.titles.append((1, _id, self.visit(node).strip()))
-        return self.tag('h1', self.visit(node).strip(), id=_id)
+        return self._get_title(node, 1)
     
     def visit_setext_title1(self, node):
         return node[0]
@@ -314,9 +345,7 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         return node[1].text
 
     def visit_title2(self, node):
-        _id = self.get_title_id(2)
-        self.titles.append((2, _id, self.visit(node).strip()))
-        return self.tag('h2', self.visit(node).strip(), id=_id)
+        return self._get_title(node, 2)
     
     def visit_setext_title2(self, node):
         return node[0]
@@ -324,6 +353,18 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
     def visit_atx_title2(self, node):
         return node[1].text
     
+    def visit_title3(self, node):
+        return self._get_title(node, 3)
+    
+    def visit_title4(self, node):
+        return self._get_title(node, 4)
+    
+    def visit_title5(self, node):
+        return self._get_title(node, 5)
+    
+    def visit_title6(self, node):
+        return self._get_title(node, 6)
+
     def visit_indent_block_line(self, node):
         return node[1].text
     
@@ -368,7 +409,10 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         kwargs = {'href':node[1][1]}
         if len(node[1])>3:
             kwargs['title'] = node[1][3].text[1:-1]
-        return self.tag('a', node[0][1], newline=False, **kwargs)
+        caption = node[0].text[1:-1].strip()
+        if not caption:
+            caption = kwargs['href']
+        return self.tag('a', caption, newline=False, **kwargs)
     
     def visit_inline_image(self, node):
         kwargs = {}
@@ -418,20 +462,70 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
     def template(self, node):
         for obj in node[0].find_all('refer_link_note'):
             self.visit_refer_link_note(obj)
-        body = self.visit(node, self.grammar or self.grammar.root)
+        body = self.visit(node, True)
         return self._template % {'title':self.title, 'body':body}
     
     def visit_direct_link(self, node):
         t = node.text
         if t.startswith('<'):
-            e = -1
-        else:
-            e = len(t)
-#        b = t.find('://') + 3
-#        href = t[b:e]
+            t = t[1:-1]
         href = t
         return self.tag('a', href, newline=False, href=href)
     
+    def visit_wiki_link(self, node):
+        """
+        [[(type:)name(#anchor)(|alter name)]]
+        type = 'wiki', or 'image'
+        if type == 'wiki':
+            [[(wiki:)name(#anchor)(|alter name)]]
+        if type == 'image':
+            [[(image:)filelink(|align|width|height)]]
+            float = 'left', 'right'
+            width or height = '' will not set
+        """
+        t = node.text[2:-2].strip()
+        type = 'wiki'
+        begin = 0
+        if t[:6].lower() == 'image:':
+            type = 'image'
+            begin = 6
+        elif t[:5].lower() == 'wiki:':
+            type = 'wiki'
+            begin = 5
+        
+        t = t[begin:]    
+        if type == 'wiki':
+            _v, caption = (t.split('|', 1) + [''])[:2]
+            name, anchor = (_v.split('#', 1) + [''])[:2]
+            if not caption:
+                caption = name
+            _prefix = self.wiki_prefix
+            if not name:
+                _prefix = ''
+                name = '#' + anchor    
+            else:
+                name = _v
+            return self.tag('a', caption, href="%s%s" % (_prefix, name))
+        elif type == 'image':
+            _v = (t.split('|') + ['', '', ''])[:4]
+            filename, align, width, height = _v
+            cls = ''
+            if width:
+                if width.isdigit():
+                    cls += ' width="%spx"' % width
+                else:
+                    cls += ' width="%s"' % width
+            if height:
+                if height.isdigit():
+                    cls += ' height="%spx"' % height
+                else:
+                    cls += ' height="%s"' % height
+            
+            s = '<img src="%s" %s/>' % (filename, cls)
+            if align:
+                s = '<div class="float%s">%s</div>' % (align, s)
+            return s
+            
     def visit_image_link(self, node):
         t = node.text
         if t.startswith('<'):
@@ -584,7 +678,36 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
     def visit_table_column(self, node):
         return self.tag('td', self.process_line(node.text[:-2].strip()), newline=False)
     
+    def visit_footnote(self, node):
+        name = node.text[2:-1]
+        _id = self.footnote_id
+        self.footnote_id += 1
+        return '<sup id="fnref-%s"><a href="#fn-%s" class="footnote-rel inner">%d</a></sup>' % (name, name, _id)
+    
+    def visit_footnote_desc(self, node):
+        name = node.find('footnote').text[2:-1]
+        if name in self.footnodes:
+            raise Exception("The footnote %s is already existed" % name)
         
+        txt = self.visit(node.find('footnote_text')).rstrip()
+        text = self.parse_text(txt, 'article')
+        n = {'name':'%s' % name, 'text':text}
+        self.footnodes.append(n)
+        return ''
+    
+    def __end__(self):
+        s = []
+        if len(self.footnodes):
+            s.append('<div class="footnotes"><ol>')
+            for n in self.footnodes:
+                name = n['name']
+                s.append('<li id="fn-%s">' % (name,))
+                s.append(n['text'])
+                s.append(self.tag('a', '&#8617;', href='#fnref-%s' % name, _class='footnote-backref'))
+                s.append('</li>')
+            s.append('</ol></div>')
+        return '\n'.join(s)
+    
 def parseHtml(text, template=None, tag_class=None, block_callback=None, init_callback=None):
     template = template or ''
     tag_class = tag_class or {}
@@ -599,4 +722,4 @@ def parseText(text):
     resultSoFar = []
     result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
     v = MarkdownTextVisitor(g)
-    return v.visit(result)
+    return v.visit(result, root=True)

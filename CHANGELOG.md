@@ -1,6 +1,20 @@
 Par ChangeLog
 ===============
 
+0.7
+---------
+
+* Add wiki_link support [[xxx]]
+* Remove old block support
+* Add head line id support
+
+    ## header2 ## {#id}
+    
+* Add `~~~` code block support
+* Add inner and outter anchor class
+* Add header anchor notation 
+* Add footnote support
+
 0.6
 ---------
 
