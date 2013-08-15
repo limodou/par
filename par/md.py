@@ -230,6 +230,7 @@ class MarkdownGrammar(WikiGrammar):
     
 class MarkdownHtmlVisitor(WikiHtmlVisitor):
     op_maps = {
+        '`':['<code>', '</code>'],
         '*':['<em>', '</em>'],
         '_':['<em>', '</em>'],
         '**':['<strong>', '</strong>'],
@@ -483,6 +484,8 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
             float = 'left', 'right'
             width or height = '' will not set
         """
+        import urlparse
+        
         t = node.text[2:-2].strip()
         type = 'wiki'
         begin = 0
@@ -505,7 +508,7 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
                 name = '#' + anchor    
             else:
                 name = _v
-            return self.tag('a', caption, href="%s%s" % (_prefix, name))
+            return self.tag('a', caption, href="%s" % urlparse.urljoin(_prefix, name))
         elif type == 'image':
             _v = (t.split('|') + ['', '', ''])[:4]
             filename, align, width, height = _v
@@ -676,7 +679,8 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
 #            return node.text
         
     def visit_table_column(self, node):
-        return self.tag('td', self.process_line(node.text[:-2].strip()), newline=False)
+        text = self.parse_text(node.text[:-2].strip(), 'words')
+        return self.tag('td', self.process_line(text), newline=False)
     
     def visit_footnote(self, node):
         name = node.text[2:-1]

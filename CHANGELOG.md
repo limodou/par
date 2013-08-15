@@ -14,6 +14,7 @@ Par ChangeLog
 * Add inner and outter anchor class
 * Add header anchor notation 
 * Add footnote support
+* Fix td parse code text bug 
 
 0.6
 ---------
