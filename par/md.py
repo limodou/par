@@ -255,7 +255,13 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         self.wiki_prefix = wiki_prefix
         self.footnote_id = footnote_id or 1
         self.footnodes = []
-    
+        
+    def visit(self, nodes, root=False):
+        if root:
+            for obj in nodes[0].find_all('refer_link_note'):
+                self.visit_refer_link_note(obj)
+        return super(MarkdownHtmlVisitor, self).visit(nodes, root)
+        
     def parse_text(self, text, peg=None):
         g = self.grammar
         if isinstance(peg, (str, unicode)):
@@ -461,8 +467,6 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         return ''
     
     def template(self, node):
-        for obj in node[0].find_all('refer_link_note'):
-            self.visit_refer_link_note(obj)
         body = self.visit(node, True)
         return self._template % {'title':self.title, 'body':body}
     

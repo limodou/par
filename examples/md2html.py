@@ -925,7 +925,12 @@ I get 10 times more traffic from [Google][] than from
 
 """
 
-text = """
+text = """That's some text with a footnote.[^1]
+
+[^1]: **aaaa**
+"""
+
+"""
 `code`
 
 || [提示](/wiki/页面名称) || [[Wiki]] 内部链接,可以跳转到其它Wiki页面，要以 `/wiki` 开头 ||

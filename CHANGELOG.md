@@ -1,6 +1,11 @@
 Par ChangeLog
 ===============
 
+0.8
+---------
+
+* Fix refer_links parsing bug, it should be processed before visit.
+
 0.7
 ---------
 
