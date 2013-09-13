@@ -5,6 +5,7 @@ Par ChangeLog
 ---------
 
 * Fix refer_links parsing bug, it should be processed before visit.
+* Add markdown extra PHP table, definition lists support
 
 0.7
 ---------

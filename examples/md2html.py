@@ -925,9 +925,27 @@ I get 10 times more traffic from [Google][] than from
 
 """
 
-text = """That's some text with a footnote.[^1]
+text = """
+update:
+
+asdbc adfa f
+asdfasdfsd
+
+That's some text with a footnote.[^1]
 
 [^1]: **aaaa**
+
+| First Header  | Second Header |
+| ------------- | ------------- |
+| Content Cell  | Content Cell  |
+| Content Cell  | Content Cell  |
+
+Apple
+:   Pomaceous fruit of plants of the genus Malus in 
+    the family Rosaceae.
+
+Orange
+:   The fruit of an evergreen tree of the genus Citrus.
 """
 
 """
@@ -1006,7 +1024,9 @@ def test_html(text):
         tag_class = tag_class or {}
         g = MarkdownGrammar()
         resultSoFar = []
-        result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
+        result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False
+#            ,root=g['dl_dd_2']
+            )
         v = MarkdownHtmlVisitor(template, tag_class, g, block_callback=block_callback, init_callback=init_callback)
         print result[0].render()
         return v.template(result)

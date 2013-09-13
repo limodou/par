@@ -181,7 +181,7 @@ class WikiHtmlVisitor(SimpleVisitor):
             else:
                 kw['class'] = _cls
             
-        attrs = ' '.join(['%s="%s"' % (x, y) for x, y in kw.items()])
+        attrs = ' '.join(['%s="%s"' % (x, y) for x, y in kw.items() if y])
         if attrs:
             attrs = ' ' + attrs
         nline = '\n' if newline else ''

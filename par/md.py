@@ -111,20 +111,24 @@ class MarkdownGrammar(WikiGrammar):
         def pre_extra2(): return _(r'<code>'), 0, pre_lang, 0, space, eol, pre_text2, _(r'</code>'), -2, blankline
         def pre(): return [indent_block, pre_extra1, pre_extra2]
     
+        #class and id definition
+        def attr_def_id(): return _(r'#[^\s\}]+')
+        def attr_def_class(): return _(r'\.[^\s\}]+')
+        def attr_def_set(): return [attr_def_id, attr_def_class], -1, (space, [attr_def_id, attr_def_class])
+        def attr_def(): return _(r'\{'), attr_def_set, _(r'\}')
         
         #subject
-        def title_id(): return _(r'\{#.*?\}')
-        def setext_title1(): return title_text, 0, title_id, blankline, _(r'={1,}'), -2, blankline
-        def setext_title2(): return title_text, 0, title_id, blankline, _(r'-{1,}'), -2, blankline
-        def title_text(): return _(r'.+?(?= #| \{#)|.+', re.U)
-        def atx_title1(): return _(r'# '), title_text, 0, _(r' #+'), 0, space, 0, title_id, -2, blankline
-        def atx_title2(): return _(r'## '), title_text, 0, _(r' #+'), 0, space, 0, title_id, -2, blankline
+        def setext_title1(): return title_text, 0, space, 0, attr_def, blankline, _(r'={1,}'), -2, blankline
+        def setext_title2(): return title_text, 0, space, 0, attr_def, blankline, _(r'-{1,}'), -2, blankline
+        def title_text(): return _(r'.+?(?= #| \{#| \{\.)|.+', re.U)
+        def atx_title1(): return _(r'# '), title_text, 0, _(r' #+'), 0, space, 0, attr_def, -2, blankline
+        def atx_title2(): return _(r'## '), title_text, 0, _(r' #+'), 0, space, 0, attr_def, -2, blankline
         def title1(): return [atx_title1, setext_title1]
         def title2(): return [atx_title2, setext_title2]
-        def title3(): return _(r'### '), title_text, 0, _(r' #+'), 0, space, 0, title_id, -2, blankline
-        def title4(): return _(r'#### '), title_text, 0, _(r' #+'), 0, space, 0, title_id, -2, blankline
-        def title5(): return _(r'##### '), title_text, 0, _(r' #+'), 0, space, 0, title_id, -2, blankline
-        def title6(): return _(r'###### '), title_text, 0, _(r' #+'), 0, space, 0, title_id, -2, blankline
+        def title3(): return _(r'### '), title_text, 0, _(r' #+'), 0, space, 0, attr_def, -2, blankline
+        def title4(): return _(r'#### '), title_text, 0, _(r' #+'), 0, space, 0, attr_def, -2, blankline
+        def title5(): return _(r'##### '), title_text, 0, _(r' #+'), 0, space, 0, attr_def, -2, blankline
+        def title6(): return _(r'###### '), title_text, 0, _(r' #+'), 0, space, 0, attr_def, -2, blankline
         def title(): return [title6, title5, title4, title3, title2, title1]
     
         #table
@@ -133,11 +137,28 @@ class MarkdownGrammar(WikiGrammar):
         def table_line(): return _(r'\|\|'), -2, table_column, eol
         def table(): return -2, table_line, -1, blankline
     
+        def table_td(): return _(r'[^\|\r\n]+')
+        def table_separator_line(): return _(r':?-+:?')
+        def table_separator_char(): return 0, space, _(r'\|'), 0, space
+        def table_head():
+            return 0, _(r'\|'), 0, space, table_td, -1, (table_separator_char, table_td), 0, table_separator_char, blankline
+        def table_separator():
+            return 0, _(r'\|'), 0, space, table_separator_line, -1, (table_separator_char, table_separator_line), 0, table_separator_char, blankline
+        def table_body_line():
+            return 0, _(r'\|'), 0, space, table_td, -1, (table_separator_char, table_td), 0, table_separator_char, blankline
+        def table_body(): return -2, table_body_line
+        def table2():
+            return table_head, table_separator, table_body
+        
         #definition
-        def dl_dt(): return _(r'(?:[^\-\+#\r\n\*>\d]|(?:\*|\+|-)\S+|>\S+|\d+\.\S+).*? --'), eol
-        def dl_dd(): return list_content_indent_lines
-        def dl_line(): return dl_dt, dl_dd
-        def dl(): return -2, dl_line
+        def dl_dt_1(): return _(r'[^ \t\r\n]+.*? --'), -2, blankline
+        def dl_dd_1(): return list_content_indent_lines
+        def dl_dt_2(): return _(r'[^ \t\r\n]+.*'), -1, blankline
+        def dl_dd_2(): return _(r':'), _(r' {1,3}'), list_rest_of_line, -1, [list_content_indent_lines, blankline]
+        def dl_line_1(): return dl_dt_1, dl_dd_1
+        def dl_line_2(): return dl_dt_2, dl_dd_2
+        def dl(): return [dl_line_1, dl_line_2], -1, [blankline, dl_line_1, dl_line_2]
+#        def dl(): return -2, dl_line_1
     
         #block
         #   [[tabs(filename=hello.html)]]:
@@ -221,7 +242,7 @@ class MarkdownGrammar(WikiGrammar):
         def link(): return [inline_image, refer_image, inline_link, refer_link, image_link, direct_link, wiki_link, mailto], -1, space
         
         #article
-        def article(): return -1, [blanklines, hr, title, refer_link_note, pre, html_block, table, list, dl, blockquote, new_block, footnote_desc, paragraph]
+        def article(): return -1, [blanklines, hr, title, refer_link_note, pre, html_block, table, table2, list, dl, blockquote, new_block, footnote_desc, paragraph]
     
         peg_rules = {}
         for k, v in ((x, y) for (x, y) in locals().items() if isinstance(y, types.FunctionType)):
@@ -333,14 +354,20 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         return '\n'
     
     def _get_title(self, node, level):
-        if node.find('title_id'):
-            _id = node.find('title_id').text[2:-1]
+        if node.find('attr_def_id'):
+            _id = node.find('attr_def_id').text[1:]
         else:
             _id = self.get_title_id(level)
         anchor = '<a class="anchor" href="#%s">&para;</a>' % _id
         title = node.find('title_text').text.strip()
         self.titles.append((level, _id, title))
-        return self.tag('h'+str(level), title + anchor, id=_id)
+        
+        #process classes
+        _cls = []
+        for x in node.find_all('attr_def_class'):
+            _cls.append(x.text[1:])
+            
+        return self.tag('h'+str(level), title + anchor, id=_id, _class=' '.join(_cls))
         
     def visit_title1(self, node):
         return self._get_title(node, 1)
@@ -633,16 +660,26 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
     def visit_dl_end(self, node):
         return '</dl>'
     
-    def visit_dl_dt(self, node):
+    def visit_dl_dt_1(self, node):
         txt = node.text.rstrip()[:-3]
         text = self.parse_text(txt, 'words')
-        return self.tag('dt', text, enclose=1)
+        return self.tag('dt', self.process_line(text), enclose=1)
     
-    def visit_dl_dd(self, node):
+    def visit_dl_dd_1(self, node):
         txt = self.visit(node).rstrip()
         text = self.parse_text(txt, 'article')
         return self.tag('dd', text, enclose=1)
     
+    def visit_dl_dt_2(self, node):
+        txt = node.text.rstrip()
+        text = self.parse_text(txt, 'words')
+        return self.tag('dt', self.process_line(text), enclose=1)
+    
+    def visit_dl_dd_2(self, node):
+        txt = self.visit(node).rstrip()
+        text = self.parse_text(txt[1:].lstrip(), 'article')
+        return self.tag('dd', text, enclose=1)
+
     def visit_inline_tag(self, node):
         rel = node.find('inline_tag_index').text.strip()
         name = node.find('inline_tag_name').text.strip()
@@ -667,10 +704,10 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
             result, rest = self.grammar.parse(block_args, root=self.grammar['new_block_args'], resultSoFar=resultSoFar, skipWS=False)
             kwargs = {}
             for node in result[0].find_all('block_kwargs'):
-                k = node.find('block_kwargs_key').text
+                k = node.find('block_kwargs_key').text.strip()
                 v = node.find('block_kwargs_value')
                 if v:
-                    v = v.text
+                    v = v.text.strip()
                 kwargs[k] = v
             
             block['kwargs'] = kwargs
@@ -685,6 +722,50 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
     def visit_table_column(self, node):
         text = self.parse_text(node.text[:-2].strip(), 'words')
         return self.tag('td', self.process_line(text), newline=False)
+    
+    def visit_table2_begin(self, node):
+        self.table_align = {}
+        for i, x in enumerate(node.find_all('table_separator_line')):
+            t = x.text.strip()
+            left = t.startswith(':')
+            right = t.endswith(':')
+            if left and right:
+                align = 'center'
+            elif left:
+                align = 'left'
+            elif right:
+                align = 'right'
+            else:
+                align = ''
+            self.table_align[i] = align
+                
+        return self.tag('table', newline=True)
+    
+    def visit_table2_end(self, node):
+        return '</table>\n'
+    
+    def visit_table_head(self, node):
+        s = ['<thead>\n<tr>']
+        for x in node.find_all('table_td'):
+            s.append('<th>%s</th>' % self.process_line(x.text.strip()))
+        s.append('</tr>\n</thead>\n')
+        return ''.join(s)
+    
+    def visit_table_separator(self, node):
+        return ''
+    
+    def visit_table_body(self, node):
+        s = ['<tbody>\n']
+        s.append(self.visit(node))
+        s.append('</tbody>')
+        return ''.join(s)
+    
+    def visit_table_body_line(self, node):
+        s = ['<tr>']
+        for i, x in enumerate(node.find_all('table_td')):
+            s.append(self.tag('td', self.process_line(x.text.strip()), align=self.table_align.get(i, '')))
+        s.append('</tr>\n')
+        return ''.join(s)
     
     def visit_footnote(self, node):
         name = node.text[2:-1]

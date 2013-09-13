@@ -173,10 +173,10 @@ class parser(object):
                 self.memory[(len(_textline), id(_pattern))] = (res, text)
             return res, text
 
-        def syntaxError():
+        def syntaxError(error=None):
             if self.packrat:
                 self.memory[(len(_textline), id(_pattern))] = False
-            raise SyntaxError()
+            raise SyntaxError(error)
 
         if self.packrat:
             try:
@@ -222,7 +222,7 @@ class parser(object):
                 else:
                     syntaxError()
             else:
-                syntaxError()
+                syntaxError(word_regex.pattern)
 
         elif pattern_type is _not:
             try:
@@ -246,7 +246,7 @@ class parser(object):
                 else:
                     return R(m.group(0), text)
             else:
-                syntaxError()
+                syntaxError(pattern.pattern+' text='+repr(text))
 
         elif pattern_type is tuple:
             result = []
@@ -276,7 +276,7 @@ class parser(object):
                             except SyntaxError:
                                 break
                         if n == -2 and not(found):
-                            syntaxError()
+                            syntaxError(text+' function=%r' % p)
                     n = 1
             return R(result, text)
 
