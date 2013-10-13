@@ -246,7 +246,9 @@ class parser(object):
                 else:
                     return R(m.group(0), text)
             else:
-                syntaxError(pattern.pattern+' text='+repr(text))
+                #syntaxError(pattern.pattern+' text='+repr(text))
+                syntaxError()
+                
 
         elif pattern_type is tuple:
             result = []
@@ -276,7 +278,8 @@ class parser(object):
                             except SyntaxError:
                                 break
                         if n == -2 and not(found):
-                            syntaxError(text+' function=%r' % p)
+                            #syntaxError(text+' function=' + repr(p))
+                            syntaxError()
                     n = 1
             return R(result, text)
 
@@ -297,7 +300,8 @@ class parser(object):
                 syntaxError()
 
         else:
-            raise SyntaxError(u"illegal type in grammar: " + u(pattern_type))
+            #raise SyntaxError(u"illegal type in grammar: " + u(pattern_type))
+            raise SyntaxError()
 
     def lineNo(self):
         if not(self.lines): return u""
