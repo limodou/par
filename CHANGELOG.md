@@ -1,6 +1,11 @@
 Par ChangeLog
 ===============
 
+0.9
+---------
+
+* Fix performance bug
+
 0.8
 ---------
 
@@ -15,19 +20,19 @@ Par ChangeLog
 * Add head line id support
 
     ## header2 ## {#id}
-    
+
 * Add `~~~` code block support
 * Add inner and outter anchor class
-* Add header anchor notation 
+* Add header anchor notation
 * Add footnote support
-* Fix td parse code text bug 
+* Fix td parse code text bug
 
 0.6
 ---------
 
 * Fix user defined block process bug in indent text
 * Refactor old user defined tag to new style
-* Fix output empty string when the undefined blocks are parsed 
+* Fix output empty string when the undefined blocks are parsed
 
 0.5
 ---------
@@ -37,7 +42,7 @@ Par ChangeLog
 0.4
 ---------
 
-* Add custome block tag support, in the versions before 0.4, there are already such things, you 
+* Add custome block tag support, in the versions before 0.4, there are already such things, you
   can define it just like:
 
     ```
