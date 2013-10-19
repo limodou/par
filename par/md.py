@@ -195,7 +195,7 @@ class MarkdownGrammar(WikiGrammar):
         def list_content_lines(): return list_content_norm_line, -1, [list_content_indent_lines, blankline]
         def list_content_indent_line(): return _(r' {4}|\t'), list_rest_of_line
         def list_content_norm_line(): return _(r' {1,3}'), common_line, -1, (0, space, common_line), -1, blanklines
-        def list_content_indent_lines(): return list_content_indent_line, -1, [list_content_indent_line, list_content_line]
+        def list_content_indent_lines(): return list_content_indent_line, -1, [list_content_indent_line, list_content_line], -1, blanklines
         def list_content(): return list_first_para, -1, [list_content_indent_lines, list_content_lines]
         def bullet_list_item(): return 0, _(r' {1,3}'), _(r'\*|\+|-'), space, list_content
         def number_list_item(): return 0, _(r' {1,3}'), _(r'\d+\.'), space, list_content

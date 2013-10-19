@@ -508,3 +508,21 @@ def test_list_pre_1():
     <BLANKLINE>
     """
     
+def test_list_pre_1():
+    """
+    >>> text = '''
+    ... 1. abc
+    ... 
+    ...     cde
+    ... 
+    ...     ```
+    ...     code
+    ...     ```
+    ... '''
+    >>> print parseHtml(text, '%(body)s')
+    <ol>
+    <li><p>abc</p><p>cde</p><pre><code>code</code></pre></li>
+    </ol>
+    <BLANKLINE>
+    """
+    
