@@ -926,26 +926,11 @@ I get 10 times more traffic from [Google][] than from
 """
 
 text = """
-update:
+1. abc
 
-asdbc adfa f
-asdfasdfsd
-
-That's some text with a footnote.[^1]
-
-[^1]: **aaaa**
-
-| First Header  | Second Header |
-| ------------- | ------------- |
-| Content Cell  | Content Cell  |
-| Content Cell  | Content Cell  |
-
-Apple
-:   Pomaceous fruit of plants of the genus Malus in 
-    the family Rosaceae.
-
-Orange
-:   The fruit of an evergreen tree of the genus Citrus.
+    ```
+    code
+    ```
 """
 
 """

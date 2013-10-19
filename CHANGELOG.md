@@ -1,6 +1,12 @@
 Par ChangeLog
 ===============
 
+0.9.1
+---------
+
+* Fix list parsing bug
+* definition list should be seperated by blankline
+
 0.9
 ---------
 

@@ -192,10 +192,10 @@ class MarkdownGrammar(WikiGrammar):
         def list_first_para(): return list_rest_of_line, -1, (0, space, common_line), -1, blanklines
         def list_content_text(): return list_rest_of_line, -1, [list_content_norm_line, blankline]
         def list_content_line(): return _(r'([\*+\-]\S+|\d+\.[\S$]*|\d+[^\.]*|[^\-\+\r\n#>]).*')
-        def list_content_lines(): return list_content_norm_line, -1, [list_content_indent_lines, list_content_line, blankline]
+        def list_content_lines(): return list_content_norm_line, -1, [list_content_indent_lines, blankline]
         def list_content_indent_line(): return _(r' {4}|\t'), list_rest_of_line
         def list_content_norm_line(): return _(r' {1,3}'), common_line, -1, (0, space, common_line), -1, blanklines
-        def list_content_indent_lines(): return list_content_indent_line, -1, [list_content_indent_line, blankline]
+        def list_content_indent_lines(): return list_content_indent_line, -1, [list_content_indent_line, list_content_line]
         def list_content(): return list_first_para, -1, [list_content_indent_lines, list_content_lines]
         def bullet_list_item(): return 0, _(r' {1,3}'), _(r'\*|\+|-'), space, list_content
         def number_list_item(): return 0, _(r' {1,3}'), _(r'\d+\.'), space, list_content
@@ -351,7 +351,10 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         return self.to_html(node.text)
     
     def visit_blanklines(self, node):
-        return '\n'
+        return ''
+    
+    def visit_blankline(self, node):
+        return ''
     
     def _get_title(self, node, level):
         if node.find('attr_def_id'):
