@@ -1,6 +1,11 @@
 Par ChangeLog
 ===============
 
+0.9.2
+---------
+
+* Fix definition list process and fix blanklines and blankline rendered
+
 0.9.1
 ---------
 

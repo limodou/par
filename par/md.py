@@ -152,7 +152,7 @@ class MarkdownGrammar(WikiGrammar):
         
         #definition
         def dl_dt_1(): return _(r'[^ \t\r\n]+.*? --'), -2, blankline
-        def dl_dd_1(): return list_content_indent_lines
+        def dl_dd_1(): return -1, [list_content_indent_lines, blankline]
         def dl_dt_2(): return _(r'[^ \t\r\n]+.*'), -1, blankline
         def dl_dd_2(): return _(r':'), _(r' {1,3}'), list_rest_of_line, -1, [list_content_indent_lines, blankline]
         def dl_line_1(): return dl_dt_1, dl_dd_1
@@ -351,10 +351,10 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         return self.to_html(node.text)
     
     def visit_blanklines(self, node):
-        return ''
+        return '\n'
     
     def visit_blankline(self, node):
-        return ''
+        return '\n'
     
     def _get_title(self, node, level):
         if node.find('attr_def_id'):
