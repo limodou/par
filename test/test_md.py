@@ -232,6 +232,25 @@ def test_table():
     <BLANKLINE>
     """
 
+def test_table1():
+    """
+    >>> text = '''
+    ... |aa|bb|                                                                                      
+    ... |--|--|                                                                                      
+    ... |asd||
+    ... '''
+    >>> print parseHtml(text, '%(body)s')
+    <BLANKLINE>
+    <table>
+    <thead>
+    <tr><th>aa</th><th>bb</th><th></th></tr>
+    </thead>
+    <tbody>
+    <tr><td>asd</td><td></td></tr>
+    </tbody></table>
+    <BLANKLINE>
+    """
+    
 def test_block_1():
     """
     >>> text = '''
@@ -485,12 +504,8 @@ def test_table_1():
     <tr><th>First Header</th><th>Second Header</th></tr>
     </thead>
     <tbody>
-    <tr><td>Content Cell</td>
-    <td>Content Cell</td>
-    </tr>
-    <tr><td>Content Cell</td>
-    <td>Content Cell</td>
-    </tr>
+    <tr><td>Content Cell</td><td>Content Cell</td></tr>
+    <tr><td>Content Cell</td><td>Content Cell</td></tr>
     </tbody></table>
     <BLANKLINE>
     """
@@ -510,14 +525,8 @@ def test_table_2():
     <tr><th>First Header</th><th>Second Header</th><th>Third Header</th></tr>
     </thead>
     <tbody>
-    <tr><td align="left">Content Cell</td>
-    <td align="right">Content Cell</td>
-    <td align="center">Content Cell</td>
-    </tr>
-    <tr><td align="left">Content Cell</td>
-    <td align="right">Content Cell</td>
-    <td align="center">Content Cell</td>
-    </tr>
+    <tr><td align="left">Content Cell</td><td align="right">Content Cell</td><td align="center">Content Cell</td></tr>
+    <tr><td align="left">Content Cell</td><td align="right">Content Cell</td><td align="center">Content Cell</td></tr>
     </tbody></table>
     <BLANKLINE>
     """
@@ -537,12 +546,8 @@ def test_table_2():
     <tr><th>First Header</th><th>Second Header</th></tr>
     </thead>
     <tbody>
-    <tr><td align="left"><strong>cell</strong></td>
-    <td align="right">Content Cell</td>
-    </tr>
-    <tr><td align="left">Content Cell</td>
-    <td align="right">Content Cell</td>
-    </tr>
+    <tr><td align="left"><strong>cell</strong></td><td align="right">Content Cell</td></tr>
+    <tr><td align="left">Content Cell</td><td align="right">Content Cell</td></tr>
     </tbody></table>
     <BLANKLINE>
     """

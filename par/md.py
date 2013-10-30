@@ -137,15 +137,16 @@ class MarkdownGrammar(WikiGrammar):
         def table_line(): return _(r'\|\|'), -2, table_column, eol
         def table(): return -2, table_line, -1, blankline
     
-        def table_td(): return _(r'[^\|\r\n]+')
-        def table_separator_line(): return _(r':?-+:?')
-        def table_separator_char(): return 0, space, _(r'\|'), 0, space
+        def table_td(): return _(r'[^\|\r\n]*\|')
+        def table_separator_line(): return _(r'\s*:?-+:?\s*\|')
+        def table_separator_char(): return _(r'\|')
+        def table_other(): return _(r'[^\r\n]+')
         def table_head():
-            return 0, _(r'\|'), 0, space, table_td, -1, (table_separator_char, table_td), 0, table_separator_char, blankline
+            return 0, _(r'\|'), -2, table_td, -1, table_other, blankline
         def table_separator():
-            return 0, _(r'\|'), 0, space, table_separator_line, -1, (table_separator_char, table_separator_line), 0, table_separator_char, blankline
+            return 0, _(r'\|'), -2, table_separator_line, -1, table_other, blankline
         def table_body_line():
-            return 0, _(r'\|'), 0, space, table_td, -1, (table_separator_char, table_td), 0, table_separator_char, blankline
+            return 0, _(r'\|'), -2, table_td, -1, table_other, blankline
         def table_body(): return -2, table_body_line
         def table2():
             return table_head, table_separator, table_body
@@ -729,7 +730,10 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
     def visit_table2_begin(self, node):
         self.table_align = {}
         for i, x in enumerate(node.find_all('table_separator_line')):
-            t = x.text.strip()
+            t = x.text
+            if t.endswith('|'):
+                t = t[:-1]
+            t = t.strip()
             left = t.startswith(':')
             right = t.endswith(':')
             if left and right:
@@ -749,8 +753,12 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
     
     def visit_table_head(self, node):
         s = ['<thead>\n<tr>']
-        for x in node.find_all('table_td'):
-            s.append('<th>%s</th>' % self.process_line(x.text.strip()))
+        for t in ('table_td', 'table_other'):
+            for x in node.find_all(t):
+                text = x.text
+                if text.endswith('|'):
+                    text = text[:-1]
+                s.append('<th>%s</th>' % self.process_line(text.strip()))
         s.append('</tr>\n</thead>\n')
         return ''.join(s)
     
@@ -765,8 +773,17 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
     
     def visit_table_body_line(self, node):
         s = ['<tr>']
-        for i, x in enumerate(node.find_all('table_td')):
-            s.append(self.tag('td', self.process_line(x.text.strip()), align=self.table_align.get(i, '')))
+        
+        def get_node():
+            for t in ('table_td', 'table_other'):
+                for x in node.find_all(t):
+                    yield x
+        for i, x in enumerate(get_node()):
+            text = x.text
+            if text.endswith('|'):
+                text = text[:-1]
+            s.append(self.tag('td', self.process_line(text.strip()), 
+                align=self.table_align.get(i, ''), newline=False, enclose=2))
         s.append('</tr>\n')
         return ''.join(s)
     

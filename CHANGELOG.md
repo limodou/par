@@ -1,6 +1,11 @@
 Par ChangeLog
 ===============
 
+0.9.3
+---------
+
+* Fix table parsing bug
+
 0.9.2
 ---------
 
