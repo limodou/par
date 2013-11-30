@@ -627,13 +627,29 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         def process_node(n):
             txt = []
             for node in n:
-                text = self.visit(node).rstrip()
-                t = self.parse_text(text, 'article').rstrip()
-                if text.count('\n') <= 1 and len(n) == 1 and t.count('<p>') == 1 and t.startswith('<p>') and t.endswith('</p>'):
-                    txt.append(t[3:-4].rstrip())
-                else:
-                    txt.append(t)
-            return ''.join(txt)
+                txt.append(self.visit(node))
+            text = ''.join(txt)
+#            print '------------------'
+#            print text
+#            print '=================='
+            t = self.parse_text(text, 'article').rstrip()
+            if text.count('\n') <= 1 and len(n) == 1 and t.count('<p>') == 1 and t.startswith('<p>') and t.endswith('</p>'):
+                ret = t[3:-4].rstrip()
+            else:
+                ret = t
+            return ret
+            
+#            for node in n:
+#                text = self.visit(node).rstrip()
+#                print '----------------------'
+#                print text
+#                print '======================'
+#                t = self.parse_text(text, 'article').rstrip()
+#                if text.count('\n') <= 1 and len(n) == 1 and t.count('<p>') == 1 and t.startswith('<p>') and t.endswith('</p>'):
+#                    txt.append(t[3:-4].rstrip())
+#                else:
+#                    txt.append(t)
+#            return ''.join(txt)
             
         def create_list(lists):
             buf = []

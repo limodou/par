@@ -926,10 +926,14 @@ I get 10 times more traffic from [Google][] than from
 """
 
 text = """
-|aa|bb|
-| :-- | --: |
-|asd||
-|asd||
+1. aaa
+
+    defaults --
+        test:
+    
+        ```
+        return {}
+        ```
 """
 
 """

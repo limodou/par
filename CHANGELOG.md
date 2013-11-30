@@ -1,6 +1,11 @@
 Par ChangeLog
 ===============
 
+0.9.4
+---------
+
+* Fix list parsing bug
+
 0.9.3
 ---------
 

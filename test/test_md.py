@@ -144,6 +144,32 @@ def test_dl_5():
     </dl>
     """
 
+def test_dl_6():
+    """
+    >>> text = '''
+    ... 1. aaa
+    ... 
+    ...     defaults --
+    ...         test:
+    ...     
+    ...         ```
+    ...         return {}
+    ...         ```
+    ... '''
+    >>> print parseHtml(text, '%(body)s')
+    <BLANKLINE>
+    <ol>
+    <li><p>aaa</p>
+    <dl>
+    <dt>defaults</dt>
+    <dd><p>test:</p>
+    <pre><code>return {}</code></pre>
+    </dd>
+    </dl></li>
+    </ol>
+    <BLANKLINE>
+    """
+
 def test_hr():
     """
     >>> text = '''
@@ -564,7 +590,8 @@ def test_list_pre():
     >>> print parseHtml(text, '%(body)s')
     <BLANKLINE>
     <ol>
-    <li><p>abc</p><pre><code>code</code></pre></li>
+    <li><p>abc</p>
+    <pre><code>code</code></pre></li>
     </ol>
     <BLANKLINE>
     """
@@ -579,12 +606,13 @@ def test_list_pre_1():
     >>> print parseHtml(text, '%(body)s')
     <BLANKLINE>
     <ol>
-    <li><p>abc</p><pre><code>code</code></pre></li>
+    <li><p>abc</p>
+    <pre><code>code</code></pre></li>
     </ol>
     <BLANKLINE>
     """
     
-def test_list_pre_1():
+def test_list_pre_2():
     """
     >>> text = '''
     ... 1. abc
@@ -598,7 +626,9 @@ def test_list_pre_1():
     >>> print parseHtml(text, '%(body)s')
     <BLANKLINE>
     <ol>
-    <li><p>abc</p><p>cde</p><pre><code>code</code></pre></li>
+    <li><p>abc</p>
+    <p>cde</p>
+    <pre><code>code</code></pre></li>
     </ol>
     <BLANKLINE>
     """
