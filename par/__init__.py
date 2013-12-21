@@ -14,7 +14,7 @@ __author__ = 'limodou'
 __author_email__ = 'limodou@gmail.com'
 __url__ = 'https://github.com/limodou/par'
 __license__ = 'BSD'
-__version__ = '0.9.4'
+__version__ = '0.9.5'
 
 _ = re.compile
 

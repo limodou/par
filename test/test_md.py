@@ -1,6 +1,8 @@
 import sys
 sys.path.insert(0, '..')
 from par.md import parseHtml
+from par.semantic_ext import blocks as semantic_blocks
+from par.bootstrap_ext import blocks as bootstrap_blocks
 
 def test_li_unorder1():
     """
@@ -32,6 +34,28 @@ def test_li_order1():
     <BLANKLINE>
     
     """
+    
+def test_li_order1():
+    """
+    >>> text = '''
+    ... * a
+    ... * b
+    ... 
+    ... * c
+    ... * d
+    ... 
+    ... '''
+    >>> print parseHtml(text, '%(body)s')
+    <BLANKLINE>
+    <ul>
+    <li>a</li>
+    <li>b</li>
+    <li>c</li>
+    <li>d</li>
+    </ul>
+    <BLANKLINE>
+    """
+    
 def test_dl_1():
     """
     >>> text = '''
@@ -631,5 +655,59 @@ def test_list_pre_2():
     <pre><code>code</code></pre></li>
     </ol>
     <BLANKLINE>
+    """
+    
+def test_semantic_alert():
+    """
+    >>> text = '''
+    ... {% alert %}
+    ... This is a test.
+    ... {% endalert %}
+    ... '''
+    >>> print parseHtml(text, '%(body)s', block_callback=semantic_blocks)
+    <BLANKLINE>
+    <div class="ui  message">
+    <p>This is a test.</p>
+    <BLANKLINE>
+    </div>
+    """
+    
+def test_semantic_tabs():
+    """
+    >>> text = '''
+    ... {% tabs %}
+    ... -- name --
+    ... * a
+    ... * b
+    ... -- name --
+    ... 1. c
+    ... 1. d
+    ... {% endtabs %}
+    ... '''
+    >>> print parseHtml(text, '%(body)s', block_callback=semantic_blocks)
+    <BLANKLINE>
+    <div class="ui tabular filter menu">
+    <a class=" class="active"item" data-tab="tab_item_1_1">name</a>
+    <a class="item" data-tab="tab_item_1_2">name</a>
+    </div>
+    <div class="tab-content">
+    <div class="ui divided inbox selection list active tab" data-tab="tab_item_1_1">
+    <BLANKLINE>
+    <ul>
+    <li>a</li>
+    <li>b</li>
+    </ul>
+    <BLANKLINE>
+    </div>
+    <div class="ui divided inbox selection list tab" data-tab="tab_item_1_2">
+    <BLANKLINE>
+    <ol>
+    <li>c</li>
+    <li>d</li>
+    </ol>
+    <BLANKLINE>
+    </div>
+    </div>
+    </div>
     """
     

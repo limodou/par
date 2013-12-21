@@ -180,37 +180,36 @@ Par.md also adds some new text decorators, such as:
     ***text***      <strong><em>text</em></strong>
     ___text___      <strong><em>text</em></strong>
 
-### Bootstrap Tab Pages
-
-Support tab pages, the format is:
-
-    [[tabs(id=hello)]]:
-        ```
-        This is a test
-        ```
-    [[tabs(id=world)]]:
-        * this is a list
-        * test
-
 ### Bootstrap Alert
 
-    [[alert(class=success)]]:
-        Success
-    [[alert(class=error)]]:
-        Error
-    [[alert(class=info)]]:
-        Info
-    [[alert]]:
-        Message
-    [[alert]]:
-        #### Alert Title
-        This is alert message
-    [[alert(class=info,close)]]:
-        This is an alert. It'll has a close button.
+    {% alert %}
+    Success
+    {% endalert %}
+    
+    {% alert class=error%}
+    Success
+    {% endalert %}
+    
+### Semantic Message
 
+The syntax is the same as bootstrap alert, but the tag name could be message
+also.
+    
+    {% message %}
+    Success
+    {% endmessage %}
+    
+    
 For bootstrap usage, you should invoke the code like this:
 
     from par.md import parseHtml
     from par.bootstrap_ext import blocks
+    
+    print parseHtml(text, template, block_callback=blocks)
+    
+For semantic usage, you should invoke the code like this:
+
+    from par.md import parseHtml
+    from par.semantic_ext import blocks
     
     print parseHtml(text, template, block_callback=blocks)

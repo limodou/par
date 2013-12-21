@@ -1,6 +1,11 @@
 Par ChangeLog
 ===============
 
+0.9.5
+---------
+
+* Add semantic support
+
 0.9.4
 ---------
 
