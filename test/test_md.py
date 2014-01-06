@@ -15,7 +15,7 @@ def test_symbol():
     <BLANKLINE>
     """
 
-def test_li_unorder1():
+def test_list_1():
     """
     >>> text = '''
     ... * a
@@ -30,7 +30,7 @@ def test_li_unorder1():
     <BLANKLINE>
     """
     
-def test_li_order1():
+def test_list_2():
     """
     >>> text = '''
     ... 1. a
@@ -46,7 +46,7 @@ def test_li_order1():
     
     """
     
-def test_li_order1():
+def test_list_3():
     """
     >>> text = '''
     ... * a
@@ -67,6 +67,32 @@ def test_li_order1():
     <BLANKLINE>
     """
     
+def test_list_4():
+    """
+    >>> text = '''
+    ... * a
+    ...     * b
+    ...     * c
+    ... * d
+    ...     * e
+    ... 
+    ... '''
+    >>> print parseHtml(text, '%(body)s')
+    <BLANKLINE>
+    <ul>
+    <li><p>a</p>
+    <ul>
+    <li>b</li>
+    <li>c</li>
+    </ul></li>
+    <li><p>d</p>
+    <ul>
+    <li>e</li>
+    </ul></li>
+    </ul>
+    <BLANKLINE>
+    """
+
 def test_dl_1():
     """
     >>> text = '''

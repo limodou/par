@@ -192,7 +192,7 @@ class MarkdownGrammar(WikiGrammar):
         def list_rest_of_line(): return _(r'.+'), eol
         def list_first_para(): return list_rest_of_line, -1, (0, space, common_line), -1, blanklines
         def list_content_text(): return list_rest_of_line, -1, [list_content_norm_line, blankline]
-        def list_content_line(): return _(r'([\*+\-]\S+|\d+\.[\S$]*|\d+[^\.]*|[^\-\+\r\n#>]).*')
+        def list_content_line(): return _(r'[ \t]+([\*+\-]\S+|\d+\.[\S$]*|\d+[^\.]*|[^\-\+\r\n#>]).*')
         def list_content_lines(): return list_content_norm_line, -1, [list_content_indent_lines, blankline]
         def list_content_indent_line(): return _(r' {4}|\t'), list_rest_of_line
         def list_content_norm_line(): return _(r' {1,3}'), common_line, -1, (0, space, common_line), -1, blanklines
@@ -200,7 +200,7 @@ class MarkdownGrammar(WikiGrammar):
         def list_content(): return list_first_para, -1, [list_content_indent_lines, list_content_lines]
         def bullet_list_item(): return 0, _(r' {1,3}'), _(r'\*|\+|-'), space, list_content
         def number_list_item(): return 0, _(r' {1,3}'), _(r'\d+\.'), space, list_content
-        def list_item(): return [bullet_list_item, number_list_item]
+        def list_item(): return -2, [bullet_list_item, number_list_item]
         def list(): return -2, list_item, -1, blankline
     
         #quote
@@ -638,18 +638,6 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
             else:
                 ret = t
             return ret
-            
-#            for node in n:
-#                text = self.visit(node).rstrip()
-#                print '----------------------'
-#                print text
-#                print '======================'
-#                t = self.parse_text(text, 'article').rstrip()
-#                if text.count('\n') <= 1 and len(n) == 1 and t.count('<p>') == 1 and t.startswith('<p>') and t.endswith('</p>'):
-#                    txt.append(t[3:-4].rstrip())
-#                else:
-#                    txt.append(t)
-#            return ''.join(txt)
             
         def create_list(lists):
             buf = []
