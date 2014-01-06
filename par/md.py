@@ -305,7 +305,7 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         buf = []
         pos = []    #stack of special chars
         i = 0
-        codes = re.split('([ \t\r\n]+)', line)
+        codes = re.split('([ \t\r\n.,?:]+)', line)
         while i<len(codes):
             left = codes[i]
             

@@ -4,6 +4,17 @@ from par.md import parseHtml
 from par.semantic_ext import blocks as semantic_blocks
 from par.bootstrap_ext import blocks as bootstrap_blocks
 
+def test_symbol():
+    """
+    >>> text = '''
+    ... This is **a** symbol **test**.
+    ... '''
+    >>> print parseHtml(text, '%(body)s')
+    <BLANKLINE>
+    <p>This is <strong>a</strong> symbol <strong>test</strong>.</p>
+    <BLANKLINE>
+    """
+
 def test_li_unorder1():
     """
     >>> text = '''

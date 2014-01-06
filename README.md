@@ -141,6 +141,41 @@ will get this:
     <tr><td> b </td><td> c </td><td> d </td>
     </tr>
     </table>
+    
+Other table format is:
+
+    | a | b | c |
+    |---|---|---|
+    | c | d | e |
+
+and this will output:
+
+    <table>
+    <thead>
+    <tr><th>aa</th><th>bb</th><th></th></tr>
+    </thead>
+    <tbody>
+    <tr><td>asd</td><td></td></tr>
+    </tbody></table>
+
+You can also set align of table header, just like:
+
+    First Header  | Second Header | Third Header
+    :------------ | ------------: | :----------:
+    Content Cell  | Content Cell  | Content Cell 
+    Content Cell  | Content Cell  | Content Cell 
+    
+this will output:
+
+    <table>
+    <thead>
+    <tr><th>First Header</th><th>Second Header</th><th>Third Header</th></tr>
+    </thead>
+    <tbody>
+    <tr><td align="left">Content Cell</td><td align="right">Content Cell</td><td align="center">Content Cell</td></tr>
+    <tr><td align="left">Content Cell</td><td align="right">Content Cell</td><td align="center">Content Cell</td></tr>
+    </tbody></table>
+    
 
 ### Definition List support
 
@@ -148,9 +183,10 @@ do like this:
 
     a --
         abc
+        
     b --
         cde
-
+        
 will get this:
 
     <dl>
@@ -162,6 +198,16 @@ will get this:
     </dd>
     </dl>
 
+Notice that each definition list should separated with blank lines.
+
+or you can define definition list like this format:
+
+    a --
+    :   abc
+        
+    b --
+    :   cde
+
 ### Directly links
 
 You can use:
@@ -169,6 +215,16 @@ You can use:
     http://google.com
 
 in text.
+
+### github code format
+
+You can just use <code>```</code> to quote code paragraph, just like github format:
+
+<pre>
+```
+code here
+```
+</pre>
 
 ### Other text decorators
 

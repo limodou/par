@@ -926,12 +926,7 @@ I get 10 times more traffic from [Google][] than from
 """
 
 text = '''
-* a
-* b
-
-* c
-* d
-
+This is **a** symbol **test**.
 '''
 
 """

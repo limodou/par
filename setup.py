@@ -12,7 +12,7 @@ Par is a simple structured text parser project. It based on pyPEG for now.
 And pyPEG is also shipped with par.
 
 It support Google Code Wiki syntax and markdown syntax. And it also extends
-markdown syntax, for example, it support: difinition list, table, direct link, etc.
+markdown syntax, for example, it support: definition list, table, direct link, etc.
 
 License
 ------------

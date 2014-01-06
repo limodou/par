@@ -1,6 +1,11 @@
 Par ChangeLog
 ===============
 
+0.9.6
+---------
+
+* Fix symbol parsing bug. <code>**abc**.</code> will now `<strong>abc</strong>.`
+
 0.9.5
 ---------
 
