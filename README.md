@@ -96,7 +96,7 @@ used in command, for example:
 
     python markdown2html.py readme.md > readme.html
 
-Paring Markdown Programmly
+Parsing Markdown Programmly
 -----------------------------
 
 Do like this:
@@ -160,10 +160,12 @@ and this will output:
 
 You can also set align of table header, just like:
 
+    ```
     First Header  | Second Header | Third Header
     :------------ | ------------: | :----------:
     Content Cell  | Content Cell  | Content Cell 
-    Content Cell  | Content Cell  | Content Cell 
+    Content Cell  | Content Cell  | Content Cell
+    ```
     
 this will output:
 
