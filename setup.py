@@ -5,8 +5,6 @@ Par
 
 :Author: Limodou <limodou@gmail.com>
 
-.. contents:: 
-
 About Par
 ----------------
 
