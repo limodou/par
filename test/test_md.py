@@ -472,6 +472,23 @@ def test_pre5():
     <BLANKLINE>
     """
     
+def test_pre_6():
+    """
+    >>> text = '''
+    ... ```class=linenums
+    ... a
+    ... b
+    ... c
+    ... ```
+    ... '''
+    >>> print parseHtml(text, '%(body)s')
+    <BLANKLINE>
+    <pre class="linenums"><code>a
+    b
+    c</code></pre>
+    <BLANKLINE>
+    """
+    
 def test_footnote():
     """
     >>> text = '''
