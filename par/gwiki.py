@@ -168,7 +168,11 @@ class WikiHtmlVisitor(SimpleVisitor):
             kw['class'] = kw.pop('_class')
         _class = self.tag_class.get(tag, '')
         if _class:
-            kw['class'] = _class
+            #if tag_class definition starts with '+', and combine it with original value
+            if _class.startswith('+'):
+                kw['class'] = _class[1:] + ' ' + kw.get('class', '')
+            else:
+                kw['class'] = _class
         
         #process inner and outter link
         if tag == 'a':

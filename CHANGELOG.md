@@ -1,6 +1,32 @@
 Par ChangeLog
 ===============
 
+0.9.7
+---------
+
+* Change `tag_class` process. If the tag class value starts with `+` then
+  it'll combine the default class value. If not, tag class value will replace
+  the default class value. For example:
+
+  <code>
+  ```class=linenums
+  print 'hello, world'
+  ```
+  </code>
+
+  will make pre class value `linenums`, but if you pass `tag_class = {'pre':'prettify'}`
+  to parseHtml() function, it'll overwrite the `linenums`, the result will be:
+
+  ```
+  <pre class="prettify">
+  ```
+
+  But if you pass `tag_class = {'pre':'+prettify'}`, the result will be:
+
+  ```
+  <pre class="prettify linenums">
+  ```
+
 0.9.6
 ---------
 
