@@ -122,7 +122,7 @@ class WikiHtmlVisitor(SimpleVisitor):
 #</html>
 #"""
     
-    def __init__(self, template=None, tag_class=None, grammar=None, title='Untitled', block_callback=None, init_callback=None):
+    def __init__(self, template=None, tag_class=None, grammar=None, title='Untitled', block_callback=None, init_callback=None, filename=None):
         self._template = template or '%(body)s'
         self.title = title
         self.titles = []
@@ -132,6 +132,7 @@ class WikiHtmlVisitor(SimpleVisitor):
         self.grammar = grammar
         self.block_callback = block_callback or {}
         self.init_callback = init_callback
+        self.filename = filename
         
     def __str__(self):
         return self.template()
@@ -164,16 +165,21 @@ class WikiHtmlVisitor(SimpleVisitor):
             2 => <tag></tag>
         """
         kw = kwargs.copy()
+        _class = ''
         if '_class' in kw:
-            kw['class'] = kw.pop('_class')
-        _class = self.tag_class.get(tag, '')
-        if _class:
+            _class = kw.pop('_class')
+        if 'class' in kw:
+            _class += ' ' + kw.pop('class')
+        tag_class = self.tag_class.get(tag, '')
+        if tag_class:
             #if tag_class definition starts with '+', and combine it with original value
-            if _class.startswith('+'):
-                kw['class'] = _class[1:] + ' ' + kw.get('class', '')
+            if tag_class.startswith('+'):
+                kw['class'] = tag_class[1:] + ' ' + _class.lstrip()
             else:
-                kw['class'] = _class
-        
+                kw['class'] = _class.lstrip()
+        else:
+            kw['class'] = _class.lstrip()
+            
         #process inner and outter link
         if tag == 'a':
             if kw['href'].startswith('http:') or kw['href'].startswith('https:') or kw['href'].startswith('ftp:'):

@@ -1,6 +1,12 @@
 Par ChangeLog
 ===============
 
+0.9.8
+---------
+
+* Add `filename` parameter to Visitor Class.
+* Fix tag process `class` bug
+
 0.9.7
 ---------
 

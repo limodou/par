@@ -14,13 +14,14 @@ __author__ = 'limodou'
 __author_email__ = 'limodou@gmail.com'
 __url__ = 'https://github.com/limodou/par'
 __license__ = 'BSD'
-__version__ = '0.9.7'
+__version__ = '0.9.8'
 
 _ = re.compile
 
 class SimpleVisitor(object):
-    def __init__(self, grammar=None):
+    def __init__(self, grammar=None, filename=None):
         self.grammar = grammar
+        self.filename = filename
 
     def visit(self, nodes, root=False):
         buf = []

@@ -267,9 +267,9 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
     
     def __init__(self, template=None, tag_class=None, grammar=None, 
         title='Untitled', block_callback=None, init_callback=None, 
-        wiki_prefix='/wiki/', footnote_id=None):
+        wiki_prefix='/wiki/', footnote_id=None, filename=None):
         super(MarkdownHtmlVisitor, self).__init__(template, tag_class, 
-            grammar, title, block_callback, init_callback)
+            grammar, title, block_callback, init_callback, filename=filename)
         self.refer_links = {}
         
         self.chars = self.op_maps.keys()
@@ -291,7 +291,7 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         resultSoFar = []
         result, rest = g.parse(text, root=peg, resultSoFar=resultSoFar, skipWS=False)
         v = self.__class__('', self.tag_class, g, block_callback=self.block_callback,
-        init_callback=self.init_callback, wiki_prefix=self.wiki_prefix,
+        init_callback=self.init_callback, wiki_prefix=self.wiki_prefix,filename=self.filename,
         footnote_id=self.footnote_id)
         v.refer_links = self.refer_links
         r =v.visit(result)
@@ -821,18 +821,18 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
             s.append('</ol></div>')
         return '\n'.join(s)
     
-def parseHtml(text, template=None, tag_class=None, block_callback=None, init_callback=None):
+def parseHtml(text, template=None, tag_class=None, block_callback=None, init_callback=None, filename=None):
     template = template or ''
     tag_class = tag_class or {}
     g = MarkdownGrammar()
     resultSoFar = []
     result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
-    v = MarkdownHtmlVisitor(template, tag_class, g, block_callback=block_callback, init_callback=init_callback)
+    v = MarkdownHtmlVisitor(template, tag_class, g, block_callback=block_callback, init_callback=init_callback, filename=filename)
     return v.template(result)
     
-def parseText(text):
+def parseText(text, filename=None):
     g = MarkdownGrammar()
     resultSoFar = []
     result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
-    v = MarkdownTextVisitor(g)
+    v = MarkdownTextVisitor(g, filename=filename)
     return v.visit(result, root=True)
