@@ -1,6 +1,11 @@
 Par ChangeLog
 ===============
 
+0.9.9
+---------
+
+* Fix missing sementic_ext.py bug
+
 0.9.8
 ---------
 
