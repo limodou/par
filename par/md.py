@@ -733,7 +733,9 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
     
     def visit_table2_begin(self, node):
         self.table_align = {}
-        for i, x in enumerate(node.find_all('table_separator_line')):
+        separator = node.find('table_separator')
+        for i, x in enumerate(list(separator.find_all('table_separator_line')) +
+                list(separator.find_all('table_other'))):
             t = x.text
             if t.endswith('|'):
                 t = t[:-1]

@@ -319,7 +319,7 @@ def test_table():
     <BLANKLINE>
     """
 
-def test_table1():
+def test_table_0():
     """
     >>> text = '''
     ... |aa|bb|                                                                                      
@@ -635,7 +635,7 @@ def test_table_2():
     <BLANKLINE>
     """
 
-def test_table_2():
+def test_table_3():
     """
     >>> text = '''
     ... | First Header  | Second Header |
@@ -652,6 +652,25 @@ def test_table_2():
     <tbody>
     <tr><td align="left"><strong>cell</strong></td><td align="right">Content Cell</td></tr>
     <tr><td align="left">Content Cell</td><td align="right">Content Cell</td></tr>
+    </tbody></table>
+    <BLANKLINE>
+    """
+
+def test_table_4():
+    """
+    >>> text = '''
+    ... |aa|bb|
+    ... |--|--|
+    ... |asd||
+    ... '''
+    >>> print parseHtml(text, '%(body)s', tag_class={'table':'table'})
+    <BLANKLINE>
+    <table class="table">
+    <thead>
+    <tr><th>aa</th><th>bb</th></tr>
+    </thead>
+    <tbody>
+    <tr><td>asd</td><td></td></tr>
     </tbody></table>
     <BLANKLINE>
     """

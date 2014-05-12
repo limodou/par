@@ -176,7 +176,7 @@ class WikiHtmlVisitor(SimpleVisitor):
             if tag_class.startswith('+'):
                 kw['class'] = tag_class[1:] + ' ' + _class.lstrip()
             else:
-                kw['class'] = _class.lstrip()
+                kw['class'] = tag_class.lstrip()
         else:
             kw['class'] = _class.lstrip()
             

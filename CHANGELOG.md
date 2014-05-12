@@ -1,6 +1,11 @@
 Par ChangeLog
 ===============
 
+0.9.10
+---------
+
+* Fix table parse and tag_class bug
+
 0.9.9
 ---------
 

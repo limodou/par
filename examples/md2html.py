@@ -926,68 +926,12 @@ I get 10 times more traffic from [Google][] than from
 """
 
 text = '''
-* a
-    * b
-    * c
-* d
-    * e
+First Header  | Second Header | Third Header
+:------------ | ------------: | :----------:
+Content Cell  | Content Cell  | Content Cell
+Content Cell  | Content Cell  | Content Cell
 '''
 
-"""
-### aaaaa
-
-adfaf
-======
-
-That's some text with a footnote.[^1]
-
-[^1]: **aaaa**
-
-as_asdf_asdf_adf _asdf_
-"""
-
-"""
-[](http://aaaa.com)
-![](http://aaaa.com)
-[](page)
-<http://aaaa.com>
-[[Page]]
-[[#edit]]
-
-"""
-"""
-[[Page|Hello world]]
-[[Page#title|Hello world]]
-[[wiki:Page|Hello world]]
-
-[[image:a.png]]
-[[image:a.png|right]]
-[[image:a.png||250]]
-<Page>
-<http://localhost:8000>
-
-test
-=====
-
-
-test  {#test}
-====
-
-## hello ## {#hello}
-
-### subject ### {#subject}
-### subject {#subject}
-
-[link to anchor](#anchor)
-
-```
-sfasdf
-```
-
-~~~~~~
-asfadsf
-~~~~~~
-"""
 
 def main(text):
     from par.md import parseHtml, parseText
@@ -1009,7 +953,7 @@ def test_html(text):
         print result[0].render()
         return v.template(result)
 
-    x = parseHtml(text, '%(body)s', block_callback=blocks)
+    x = parseHtml(text, '%(body)s', block_callback=blocks, tag_class={'table':'table'})
     print unicode(x, 'utf8').encode('gbk')
 
 def test_text(text):
