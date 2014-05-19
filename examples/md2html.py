@@ -1,4 +1,5 @@
 from __future__ import print_function
+from future.builtins import str
 #coding=utf8
 
 import sys
@@ -955,7 +956,7 @@ def test_html(text):
         return v.template(result)
 
     x = parseHtml(text, '%(body)s', block_callback=blocks, tag_class={'table':'table'})
-    print(unicode(x, 'utf8').encode('gbk'))
+    print(str(x, 'utf8').encode('gbk'))
 
 def test_text(text):
     def parseText(text):

@@ -1,3 +1,9 @@
+from __future__ import print_function
+from __future__ import unicode_literals
+from future.builtins import str
+from past.builtins import cmp
+from future import standard_library
+standard_library.install_hooks()
 #coding=utf8
 # Parsing Markdown
 # This version has some differences between Standard Markdown
@@ -201,7 +207,7 @@ class MarkdownGrammar(WikiGrammar):
         def bullet_list_item(): return 0, _(r' {1,3}'), _(r'\*|\+|-'), space, list_content
         def number_list_item(): return 0, _(r' {1,3}'), _(r'\d+\.'), space, list_content
         def list_item(): return -2, [bullet_list_item, number_list_item]
-        def list(): return -2, list_item, -1, blankline
+        def lists(): return -2, list_item, -1, blankline
     
         #quote
         def quote_text(): return _(r'[^\r\n]*'), eol
@@ -243,10 +249,10 @@ class MarkdownGrammar(WikiGrammar):
         def link(): return [inline_image, refer_image, inline_link, refer_link, image_link, direct_link, wiki_link, mailto], -1, space
         
         #article
-        def article(): return -1, [blanklines, hr, title, refer_link_note, pre, html_block, table, table2, list, dl, blockquote, new_block, footnote_desc, paragraph]
+        def article(): return -1, [blanklines, hr, title, refer_link_note, pre, html_block, table, table2, lists, dl, blockquote, new_block, footnote_desc, paragraph]
     
         peg_rules = {}
-        for k, v in ((x, y) for (x, y) in locals().items() if isinstance(y, types.FunctionType)):
+        for k, v in ((x, y) for (x, y) in list(locals().items()) if isinstance(y, types.FunctionType)):
             peg_rules[k] = v
         return peg_rules, article
     
@@ -272,8 +278,8 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
             grammar, title, block_callback, init_callback, filename=filename)
         self.refer_links = {}
         
-        self.chars = self.op_maps.keys()
-        self.chars.sort(cmp=lambda x,y:cmp(len(y), len(x)))
+        self.chars = list(self.op_maps.keys())
+        self.chars.sort(key=lambda x:len(x), reverse=True)
         self.wiki_prefix = wiki_prefix
         self.footnote_id = footnote_id or 1
         self.footnodes = []
@@ -286,7 +292,7 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         
     def parse_text(self, text, peg=None):
         g = self.grammar
-        if isinstance(peg, (str, unicode)):
+        if isinstance(peg, (str, str)):
             peg = g[peg]
         resultSoFar = []
         result, rest = g.parse(text, root=peg, resultSoFar=resultSoFar, skipWS=False)
@@ -519,7 +525,7 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
             float = 'left', 'right'
             width or height = '' will not set
         """
-        import urlparse
+        import future.moves.urllib.parse as urllib_parse
         
         t = node.text[2:-2].strip()
         type = 'wiki'
@@ -543,7 +549,7 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
                 name = '#' + anchor    
             else:
                 name = _v
-            return self.tag('a', caption, href="%s" % urlparse.urljoin(_prefix, name))
+            return self.tag('a', caption, href="%s" % urllib_parse.urljoin(_prefix, name))
         elif type == 'image':
             _v = (t.split('|') + ['', '', ''])[:4]
             filename, align, width, height = _v
@@ -605,7 +611,7 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         result = self.parse_text(''.join(text), 'article')
         return self.tag('blockquote', result)
         
-    def visit_list_begin(self, node):
+    def visit_lists_begin(self, node):
         self.lists = []
         return ''
         
@@ -623,7 +629,7 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         self.lists.append(('n', node.find('list_content')))
         return ''
         
-    def visit_list_end(self, node):
+    def visit_lists_end(self, node):
         def process_node(n):
             txt = []
             for node in n:

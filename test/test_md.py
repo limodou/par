@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import unicode_literals
 import sys
 sys.path.insert(0, '..')
 from par.md import parseHtml
@@ -9,7 +11,7 @@ def test_symbol():
     >>> text = '''
     ... This is **a** symbol **test**.
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <p>This is <strong>a</strong> symbol <strong>test</strong>.</p>
     <BLANKLINE>
@@ -21,7 +23,7 @@ def test_list_1():
     ... * a
     ... * b
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <ul>
     <li>a</li>
@@ -36,7 +38,7 @@ def test_list_2():
     ... 1. a
     ... 2. b
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <ol>
     <li>a</li>
@@ -56,7 +58,7 @@ def test_list_3():
     ... * d
     ... 
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <ul>
     <li>a</li>
@@ -77,7 +79,7 @@ def test_list_4():
     ...     * e
     ... 
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <ul>
     <li><p>a</p>
@@ -102,7 +104,7 @@ def test_dl_1():
     ... b --
     ...     cde
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <dl>
     <dt>a</dt>
@@ -124,7 +126,7 @@ def test_dl_2():
     ... **b** --
     ...     * li
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <dl>
     <dt>a_</dt>
@@ -148,7 +150,7 @@ def test_dl_3():
     ... **b**
     ... :   * li
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <dl>
     <dt>a</dt>
@@ -174,7 +176,7 @@ def test_dl_4():
     ...     ```
     ... 
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <dl>
     <dt>a</dt>
@@ -195,7 +197,7 @@ def test_dl_5():
     ...     ```
     ... 
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <dl>
     <dt>a</dt>
@@ -217,7 +219,7 @@ def test_dl_6():
     ...         return {}
     ...         ```
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <ol>
     <li><p>aaa</p>
@@ -238,7 +240,7 @@ def test_hr():
     ... ----
     ... __ __ __
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <hr/>
     <hr/>
@@ -253,7 +255,7 @@ def test_url_1():
     ... 
     ... [foo]: http://example.com/  "Optional Title Here"
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <p>This is <a href="http://example.com/" class="outter" title="Optional Title Here">Test</a>
      .</p>
@@ -267,7 +269,7 @@ def test_url_2():
     ... 
     ... [foo]: http://example.com/  'Optional Title Here'
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <p>This is <a href="http://example.com/" class="outter" title="Optional Title Here">Test</a>
      .</p>
@@ -281,7 +283,7 @@ def test_url_3():
     ... 
     ... [foo]: http://example.com/  (Optional Title Here)
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <p>This is <a href="http://example.com/" class="outter" title="Optional Title Here">Test</a>
      .</p>
@@ -295,7 +297,7 @@ def test_url_4():
     ... 
     ... [foo]: http://example.com/  (Optional Title Here)
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <p>This is <a href="http://example.com/" class="outter" title="Optional Title Here">foo</a>
      .</p>
@@ -308,7 +310,7 @@ def test_table():
     ... || a || b || c ||
     ... || b || c || d ||
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <table>
     <tr><td>a</td><td>b</td><td>c</td>
@@ -326,7 +328,7 @@ def test_table_0():
     ... |--|--|                                                                                      
     ... |asd||
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <table>
     <thead>
@@ -353,7 +355,7 @@ def test_block_1():
     ... {% endtabs %}
     ... '''
     >>> from par.bootstrap_ext import blocks
-    >>> print parseHtml(text, '%(body)s', block_callback=blocks)
+    >>> print (parseHtml(text, '%(body)s', block_callback=blocks))
     <BLANKLINE>
     <div class="tabbable">
     <ul class="nav nav-tabs">
@@ -382,7 +384,7 @@ def test_block_2():
     ...     This is an alert.
     ... {%endalert%}'''
     >>> from par.bootstrap_ext import blocks
-    >>> print parseHtml(text, '%(body)s', block_callback=blocks)
+    >>> print (parseHtml(text, '%(body)s', block_callback=blocks))
     <BLANKLINE>
     <div class="alert alert-info">
     <button class="close" data-dismiss="alert">&times;</button>
@@ -400,7 +402,7 @@ def test_pre_1():
     ... c
     ... ```
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <pre id="test"><code class="language-python">a
     b
@@ -417,7 +419,7 @@ def test_pre_2():
     ... c
     ... ```
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <pre><code class="language-python">a
     b
@@ -434,7 +436,7 @@ def test_pre_3():
     ... c
     ... ```
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <pre id="test"><code>a
     b
@@ -451,7 +453,7 @@ def test_pre_4():
     ... c
     ... ```
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <pre><code>a
     b
@@ -466,7 +468,7 @@ def test_pre5():
     ... asfadsf
     ... ~~~~~~
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <pre><code>asfadsf</code></pre>
     <BLANKLINE>
@@ -481,7 +483,7 @@ def test_pre_6():
     ... c
     ... ```
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <pre class="linenums"><code>a
     b
@@ -496,7 +498,7 @@ def test_footnote():
     ... 
     ... [^1]: **aaaa**
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <p>That's some text with a footnote.<sup id="fnref-1"><a href="#fn-1" class="footnote-rel inner">1</a></sup></p>
     <div class="footnotes"><ol>
@@ -522,7 +524,7 @@ def test_attr_1():
     ... 
     ... [link to anchor](#anchor)
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <h1 id="test">test<a class="anchor" href="#test">&para;</a></h1>
     <h2 id="hello">hello<a class="anchor" href="#hello">&para;</a></h2>
@@ -541,7 +543,7 @@ def test_attr_2():
     ... ## hello  {.hello}
     ... ## hello  {.hello #title .class}
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <h2 id="hello">hello<a class="anchor" href="#hello">&para;</a></h2>
     <h2 id="title_0-1" class="hello">hello<a class="anchor" href="#title_0-1">&para;</a></h2>
@@ -564,7 +566,7 @@ def test_link_1():
     ... <Page>
     ... <http://localhost:8000>
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <p><a href="/wiki/Page" class="inner">Hello world</a>
      <a href="/wiki/Page#title" class="inner">Hello world</a>
@@ -584,7 +586,7 @@ def test_link_2():
     ... [[Page]]
     ... [[#edit]]
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <p><a href="http://aaaa.com" class="outter">http://aaaa.com</a> <img src="http://aaaa.com"/>
      <a href="page" class="inner">page</a> <a href="http://aaaa.com" class="outter">http://aaaa.com</a> <a href="/wiki/Page" class="inner">Page</a>
@@ -601,7 +603,7 @@ def test_table_1():
     ... Content Cell  | Content Cell
     ... Content Cell  | Content Cell
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <table>
     <thead>
@@ -622,7 +624,7 @@ def test_table_2():
     ... Content Cell  | Content Cell  | Content Cell 
     ... Content Cell  | Content Cell  | Content Cell 
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <table>
     <thead>
@@ -643,7 +645,7 @@ def test_table_3():
     ... | **cell**      | Content Cell  |
     ... | Content Cell  | Content Cell  |
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <table>
     <thead>
@@ -663,7 +665,7 @@ def test_table_4():
     ... |--|--|
     ... |asd||
     ... '''
-    >>> print parseHtml(text, '%(body)s', tag_class={'table':'table'})
+    >>> print (parseHtml(text, '%(body)s', tag_class={'table':'table'}))
     <BLANKLINE>
     <table class="table">
     <thead>
@@ -684,7 +686,7 @@ def test_list_pre():
     ...     code
     ...     ```
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <ol>
     <li><p>abc</p>
@@ -700,7 +702,7 @@ def test_list_pre_1():
     ... 
     ...         code
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <ol>
     <li><p>abc</p>
@@ -720,7 +722,7 @@ def test_list_pre_2():
     ...     code
     ...     ```
     ... '''
-    >>> print parseHtml(text, '%(body)s')
+    >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <ol>
     <li><p>abc</p>
@@ -737,7 +739,7 @@ def test_semantic_alert():
     ... This is a test.
     ... {% endalert %}
     ... '''
-    >>> print parseHtml(text, '%(body)s', block_callback=semantic_blocks)
+    >>> print (parseHtml(text, '%(body)s', block_callback=semantic_blocks))
     <BLANKLINE>
     <div class="ui  message">
     <p>This is a test.</p>
@@ -757,7 +759,7 @@ def test_semantic_tabs():
     ... 1. d
     ... {% endtabs %}
     ... '''
-    >>> print parseHtml(text, '%(body)s', block_callback=semantic_blocks)
+    >>> print (parseHtml(text, '%(body)s', block_callback=semantic_blocks))
     <BLANKLINE>
     <div class="ui tabular filter menu">
     <a class=" class="active"item" data-tab="tab_item_1_1">name</a>
@@ -784,3 +786,17 @@ def test_semantic_tabs():
     </div>
     """
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+

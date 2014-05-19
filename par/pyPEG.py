@@ -1,14 +1,19 @@
 from __future__ import division
+from __future__ import unicode_literals
+from future.builtins import str
+from future.builtins import range
+from future.builtins import object
+from future.utils import python_2_unicode_compatible
+
 # YPL parser 1.5
 
 # written by VB.
 
 import re
 import sys, codecs
-import exceptions
 
-class keyword(unicode): pass
-class code(unicode): pass
+class keyword(str): pass
+class code(str): pass
 class ignore(object):
     def __init__(self, regex_text, *args):
         self.regex = re.compile(regex_text, *args)
@@ -19,11 +24,12 @@ class _and(object):
 
 class _not(_and): pass
 
-class Name(unicode):
+class Name(str):
     def __init__(self, *args):
         self.line = 0
         self.file = u""
 
+@python_2_unicode_compatible
 class Symbol(list):
     def __init__(self, name, what):
         self.__name__ = name
@@ -33,25 +39,25 @@ class Symbol(list):
         self.extend(what)
     def __call__(self):
         return self.what
-    def __unicode__(self):
+    def __str__(self):
         return u'Symbol<' + repr(self.__name__) + '>: ' + repr(self.what)
     def __repr__(self):
-        return unicode(self)
+        return str(self)
     def render(self, index=0):
-        if isinstance(self.what, (str, unicode)):
-            return ' '*2*index+'%s:%r\n' % (self.__name__, self.what)
+        if isinstance(self.what,str):
+            return u' '*2*index+'%s:%r\n' % (self.__name__, self.what)
         else:
             buf = []
-            buf.append(' '*2*index+'%s:\n' % self.__name__)
+            buf.append(u' '*2*index+'%s:\n' % self.__name__)
             for x in self.what:
-                if isinstance(x, (str, unicode)):
-                    buf.append(' '*4*(index+1)+':%r\n' % x)
+                if isinstance(x, str):
+                    buf.append(u' '*4*(index+1)+':%r\n' % x)
                 else:
                     buf.append(x.render(index+1))
-        return ''.join(buf)
+        return u''.join(buf)
     def find(self, name):
         for x in self.what:
-            if isinstance(x, (str, unicode)):
+            if isinstance(x, str):
                 continue
             else:
                 if x.__name__ == name:
@@ -61,7 +67,7 @@ class Symbol(list):
                     return r
     def find_all(self, name):
         for x in self.what:
-            if isinstance(x, (str, unicode)):
+            if isinstance(x, str):
                 continue
             else:
                 if x.__name__ == name:
@@ -73,32 +79,27 @@ class Symbol(list):
     @property
     def text(self):
         buf = []
-        if isinstance(self.what, (str, unicode)):
+        if isinstance(self.what, (str, str)):
             buf.append(self.what)
         else:
             for node in self.what:
-                if isinstance(node, (str, unicode)):
+                if isinstance(node, (str, str)):
                     buf.append(node)
                 else:
                     buf.append(node.text)
-        return ''.join(buf)
+        return u''.join(buf)
 
-word_regex = re.compile(ur"\w+")
-rest_regex = re.compile(ur".*")
+word_regex = re.compile(u"\\w+")
+rest_regex = re.compile(u".*")
 
 print_trace = False
 
 def u(text):
-    if isinstance(text, exceptions.BaseException):
+    if isinstance(text, BaseException):
         text = text.args[0]
-    if type(text) is unicode:
-        return text
     if isinstance(text, str):
-        if sys.stdin.encoding:
-            return codecs.decode(text, sys.stdin.encoding)
-        else:
-            return codecs.decode(text, "utf-8")
-    return unicode(text)
+        return text
+    return str(text)
 
 def skip(skipper, text, skipWS, skipComments):
     if skipWS:
@@ -207,7 +208,7 @@ class parser(object):
 
         pattern_type = type(pattern)
 
-        if pattern_type is str or pattern_type is unicode:
+        if isinstance(pattern_type, str):
             if text[:len(pattern)] == pattern:
                 text = skip(self.skipper, text[len(pattern):], skipWS, skipComments)
                 return R(None, text)

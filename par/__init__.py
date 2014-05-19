@@ -7,6 +7,7 @@
 # license: BSD
 #
 from __future__ import absolute_import
+from future.builtins import object
 from .pyPEG import *
 import re
 import types
@@ -15,7 +16,7 @@ __author__ = 'limodou'
 __author_email__ = 'limodou@gmail.com'
 __url__ = 'https://github.com/limodou/par'
 __license__ = 'BSD'
-__version__ = '0.9.10'
+__version__ = '1.0'
 
 _ = re.compile
 
@@ -33,7 +34,7 @@ class SimpleVisitor(object):
             if method:
                 buf.append(method())
         for node in nodes:
-            if isinstance(node, (str, unicode)):
+            if isinstance(node, (str, str)):
                 buf.append(node)
             else:
                 if hasattr(self, 'before_visit'):
@@ -45,7 +46,7 @@ class SimpleVisitor(object):
                 if method:
                     buf.append(method(node))
                 else:
-                    if isinstance(node.what, (str, unicode)):
+                    if isinstance(node.what, (str, str)):
                         buf.append(node.what)
                     else:
                         buf.append(self.visit(node.what))

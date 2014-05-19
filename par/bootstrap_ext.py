@@ -1,3 +1,4 @@
+from __future__ import unicode_literals
 def bootstrap_tabs(visitor, items):
     def format_id(s):
         return s.replace('.', '-')

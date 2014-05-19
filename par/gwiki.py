@@ -1,4 +1,6 @@
 from __future__ import absolute_import
+from future.builtins import map
+from future.builtins import range
 from .pyPEG import *
 import re
 import types
@@ -68,7 +70,7 @@ class WikiGrammar(dict):
         def bullet_list_item(): return list_indent, _(r'\*'), space, list_leaf_content
         def number_list_item(): return list_indent, _(r'#'), space, list_leaf_content
         def list_item(): return [bullet_list_item, number_list_item]
-        def list(): return -2, list_item, -1, blankline
+        def lists(): return -2, list_item, -1, blankline
     
         #quote
         def quote_line(): return space, line
@@ -84,10 +86,10 @@ class WikiGrammar(dict):
         def link(): return [alt_image_link, alt_direct_link, image_link, direct_link, mailto], -1, space
         
         #article
-        def article(): return 0, ws, -1, [hr, title, pre, table, list, quote, paragraph]
+        def article(): return 0, ws, -1, [hr, title, pre, table, lists, quote, paragraph]
     
         peg_rules = {}
-        for k, v in ((x, y) for (x, y) in locals().items() if isinstance(y, types.FunctionType)):
+        for k, v in ((x, y) for (x, y) in list(locals().items()) if isinstance(y, types.FunctionType)):
             peg_rules[k] = v
         return peg_rules, article
     
@@ -149,7 +151,7 @@ class WikiHtmlVisitor(SimpleVisitor):
     
     def parse_text(self, text, peg=None):
         g = self.grammar
-        if isinstance(peg, (str, unicode)):
+        if isinstance(peg, (str, str)):
             peg = g[peg]
         resultSoFar = []
         result, rest = g.parse(text, root=peg, resultSoFar=resultSoFar, 
@@ -192,7 +194,7 @@ class WikiHtmlVisitor(SimpleVisitor):
             else:
                 kw['class'] = _cls
             
-        attrs = ' '.join(['%s="%s"' % (x, y) for x, y in kw.items() if y])
+        attrs = ' '.join(['%s="%s"' % (x, y) for x, y in list(kw.items()) if y])
         if attrs:
             attrs = ' ' + attrs
         nline = '\n' if newline else ''
@@ -301,11 +303,11 @@ class WikiHtmlVisitor(SimpleVisitor):
     def visit_table_column(self, node):
         return self.tag('td', self.visit(node[:-1]), newline=False)
     
-    def visit_list_begin(self, node):
+    def visit_lists_begin(self, node):
         self.lists = []
         return ''
         
-    def visit_list_end(self, node):
+    def visit_lists_end(self, node):
         def create_list(index, lists):
             buf = []
             old = None
