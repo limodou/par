@@ -1,3 +1,4 @@
+from __future__ import print_function
 #coding=utf8
 
 import sys
@@ -230,7 +231,7 @@ http://chart.apis.google.com/chart?chs=200x125&chd=t:48.14,33.79,19.77|83.18,18.
 
 def main(text):
     from par.gwiki import parseHtml
-    print parseHtml(text, template, tag_class).encode('utf8')
+    print(parseHtml(text, template, tag_class).encode('utf8'))
 
 if __name__ == '__main__':
     import sys

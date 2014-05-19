@@ -1,7 +1,8 @@
-from pyPEG import *
+from __future__ import absolute_import
+from .pyPEG import *
 import re
 import types
-from __init__ import SimpleVisitor
+from .__init__ import SimpleVisitor
 
 _ = re.compile
 

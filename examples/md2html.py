@@ -1,3 +1,4 @@
+from __future__ import print_function
 #coding=utf8
 
 import sys
@@ -935,7 +936,7 @@ Content Cell  | Content Cell  | Content Cell
 
 def main(text):
     from par.md import parseHtml, parseText
-    print parseHtml(text, template, tag_class).encode('utf8')
+    print(parseHtml(text, template, tag_class).encode('utf8'))
 #    print parseText(text).encode('utf8')
     
 def test_html(text):
@@ -950,11 +951,11 @@ def test_html(text):
 #            ,root=g['dl_dd_2']
             )
         v = MarkdownHtmlVisitor(template, tag_class, g, block_callback=block_callback, init_callback=init_callback)
-        print result[0].render()
+        print(result[0].render())
         return v.template(result)
 
     x = parseHtml(text, '%(body)s', block_callback=blocks, tag_class={'table':'table'})
-    print unicode(x, 'utf8').encode('gbk')
+    print(unicode(x, 'utf8').encode('gbk'))
 
 def test_text(text):
     def parseText(text):
@@ -962,10 +963,10 @@ def test_text(text):
         resultSoFar = []
         result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
         v = SimpleVisitor(g)
-        print result[0].render()
+        print(result[0].render())
         return v.visit(result)
 
-    print parseText(text)
+    print(parseText(text))
     
 if __name__ == '__main__':
     import sys

@@ -6,7 +6,8 @@
 #
 # license: BSD
 #
-from pyPEG import *
+from __future__ import absolute_import
+from .pyPEG import *
 import re
 import types
 

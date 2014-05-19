@@ -1,3 +1,4 @@
+from __future__ import division
 # YPL parser 1.5
 
 # written by VB.
@@ -381,7 +382,7 @@ def parse(language, lineSource, skipWS = True, skipComments = None, packrat = Fa
         if text:
             raise SyntaxError()
 
-    except SyntaxError, msg:
+    except SyntaxError as msg:
         parsed = textlen - p.restlen
         textlen = 0
         nn, lineNo, file = 0, 0, u""
