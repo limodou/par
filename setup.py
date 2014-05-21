@@ -25,7 +25,7 @@ from setuptools import setup
 import par
 
 setup(name='par',
-    version=par.__version__,
+    version='1.1',
     description="A simple structured text parser project",
     long_description=__doc__,
     classifiers=[
@@ -42,10 +42,10 @@ setup(name='par',
     packages = ['par'],
     platforms = 'any',
     keywords='parser peg',
-    author=par.__author__,
-    author_email=par.__author_email__,
-    url=par.__url__,
-    license=par.__license__,
+    author='limodou',
+    author_email='limodou@gmail.com',
+    url='https://github.com/limodou/par',
+    license='BSD',
     include_package_data=True,
     zip_safe=False,
     install_requires=['future']
