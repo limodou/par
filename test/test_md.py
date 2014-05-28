@@ -233,6 +233,33 @@ def test_dl_6():
     <BLANKLINE>
     """
 
+def test_dl_7():
+    """
+    >>> text = '''
+    ... a --
+    ...     abc
+    ...
+    ... b --c --
+    ...     abc
+    ... '''
+    >>> print (parseHtml(text, '%(body)s'))
+    <BLANKLINE>
+    <dl>
+    <dt>a</dt>
+    <dd><p>abc</p>
+    <pre><code>code
+       abcd</code></pre>
+    <p>test</p>
+    </dd>
+    <dt>b</dt>
+    <dd><p>abc</p>
+    <pre><code>code
+       abcd</code></pre>
+    <p>test</p>
+    </dd>
+    </dl>
+    """
+
 def test_hr():
     """
     >>> text = '''

@@ -1,4 +1,5 @@
 from __future__ import print_function
+from __future__ import unicode_literals
 from future.builtins import str
 #coding=utf8
 
@@ -928,10 +929,11 @@ I get 10 times more traffic from [Google][] than from
 """
 
 text = '''
-First Header  | Second Header | Third Header
-:------------ | ------------: | :----------:
-Content Cell  | Content Cell  | Content Cell
-Content Cell  | Content Cell  | Content Cell
+a --
+    abc
+
+b --c --
+    abc
 '''
 
 

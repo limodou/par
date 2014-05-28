@@ -1,6 +1,12 @@
 Par ChangeLog
 ===============
 
+1.1
+---------
+
+* Fix define list bug
+* Fix md2html.py bug
+
 1.0
 ---------
 
