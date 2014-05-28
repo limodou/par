@@ -239,8 +239,22 @@ def test_dl_7():
     ... a --
     ...     abc
     ...
+    ...     ```
+    ...     code
+    ...        abcd
+    ...     ```
+    ...
+    ...     test
+    ...
     ... b --c --
     ...     abc
+    ...
+    ...     ```
+    ...     code
+    ...        abcd
+    ...     ```
+    ...
+    ...     test
     ... '''
     >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
@@ -251,7 +265,7 @@ def test_dl_7():
        abcd</code></pre>
     <p>test</p>
     </dd>
-    <dt>b</dt>
+    <dt>b --c</dt>
     <dd><p>abc</p>
     <pre><code>code
        abcd</code></pre>

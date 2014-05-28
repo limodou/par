@@ -932,8 +932,20 @@ text = '''
 a --
     abc
 
+    ```
+    sss
+    ```
+
+    ccc
+
 b --c --
     abc
+
+    ```
+    sss
+    ```
+
+    ccc
 '''
 
 
