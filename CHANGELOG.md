@@ -1,6 +1,11 @@
 Par ChangeLog
 ===============
 
+1.2.1
+---------
+
+* Fix pass bytes text bug
+
 1.2
 ---------
 

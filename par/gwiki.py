@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 from future.builtins import map
-from future.builtins import range
+from future.builtins import range, bytes
 from .pyPEG import *
 import re
 import types
@@ -94,6 +94,8 @@ class WikiGrammar(dict):
         return peg_rules, article
     
     def parse(self, text, root=None, skipWS=False, **kwargs):
+        if isinstance(text, bytes):
+            text = text.decode('utf8')
         if not text:
             text = '\n'
         if text[-1] not in ('\r', '\n'):
