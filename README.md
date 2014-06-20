@@ -1,7 +1,7 @@
 A parser for structured text
 =============================
 
-Sometimes I need a parser whick can parse structured text. I know I can
+Sometimes I need a parser which can parse structured text. I know I can
 find such module for each type structured text format, such as:
 
 * reStructuredText - [Docutils](http://docutils.sourceforge.net/)
@@ -10,8 +10,8 @@ find such module for each type structured text format, such as:
     
 But I still want to develop such thing myself, because I need to know the details
 of how to develop such tool, and when I need I can modified it easily to suit
-for my needs. So that's the reason why par developed. And I don't want to replace
-any of above tools, but used for myself at first. And I also want to use
+for my needs. So that's the reason why par was developed. And I don't want to replace
+any of above tools, but use for myself at first. And I also want to use
 the same code base to implement different structured text format.
 
 And I choose [pyPEG](http://fdik.org/pyPEG/) as the parser, I also test several modules, but I think this
@@ -128,12 +128,12 @@ Markdown Syntax Extend
 
 ### Table Support
 
-do like this:
+This:
 
     || a || b || c ||
     || c || d || e ||
 
-will get this:
+will return this:
 
     <table>
     <tr><td> a </td><td> b </td><td> c </td>
