@@ -90,13 +90,6 @@ rest_regex = re.compile(u".*")
 
 print_trace = False
 
-def u(text):
-    if isinstance(text, BaseException):
-        text = text.args[0]
-    if isinstance(text, str):
-        return text
-    return str(text)
-
 def skip(skipper, text, skipWS, skipComments):
     if skipWS:
         t = text.lstrip()
