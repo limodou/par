@@ -1,6 +1,11 @@
 Par ChangeLog
 ===============
 
+1.3
+---------
+
+* Refactor with _compat.py
+
 1.2.1
 ---------
 
