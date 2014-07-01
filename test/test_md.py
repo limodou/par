@@ -298,7 +298,7 @@ def test_url_1():
     ... '''
     >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
-    <p>This is <a href="http://example.com/" class="outter" title="Optional Title Here">Test</a>
+    <p>This is <a class="outter" href="http://example.com/" title="Optional Title Here">Test</a>
      .</p>
     <BLANKLINE>
     """
@@ -312,7 +312,7 @@ def test_url_2():
     ... '''
     >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
-    <p>This is <a href="http://example.com/" class="outter" title="Optional Title Here">Test</a>
+    <p>This is <a class="outter" href="http://example.com/" title="Optional Title Here">Test</a>
      .</p>
     <BLANKLINE>
     """
@@ -326,7 +326,7 @@ def test_url_3():
     ... '''
     >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
-    <p>This is <a href="http://example.com/" class="outter" title="Optional Title Here">Test</a>
+    <p>This is <a class="outter" href="http://example.com/" title="Optional Title Here">Test</a>
      .</p>
     <BLANKLINE>
     """
@@ -340,7 +340,7 @@ def test_url_4():
     ... '''
     >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
-    <p>This is <a href="http://example.com/" class="outter" title="Optional Title Here">foo</a>
+    <p>This is <a class="outter" href="http://example.com/" title="Optional Title Here">foo</a>
      .</p>
     <BLANKLINE>
     """
@@ -546,7 +546,7 @@ def test_footnote():
     <li id="fn-1">
     <p> <strong>aaaa</strong></p>
     <BLANKLINE>
-    <a href="#fnref-1" class="footnote-backref inner">&#8617;</a>
+    <a class="footnote-backref inner" href="#fnref-1">&#8617;</a>
     <BLANKLINE>
     </li>
     </ol></div>
@@ -571,7 +571,7 @@ def test_attr_1():
     <h2 id="hello">hello<a class="anchor" href="#hello">&para;</a></h2>
     <h3 id="subject">subject<a class="anchor" href="#subject">&para;</a></h3>
     <h3 id="subject">subject<a class="anchor" href="#subject">&para;</a></h3>
-    <p><a href="#anchor" class="inner">link to anchor</a></p>
+    <p><a class="inner" href="#anchor">link to anchor</a></p>
     <BLANKLINE>
     """
     
@@ -587,10 +587,10 @@ def test_attr_2():
     >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <h2 id="hello">hello<a class="anchor" href="#hello">&para;</a></h2>
-    <h2 id="title_0-1" class="hello">hello<a class="anchor" href="#title_0-1">&para;</a></h2>
+    <h2 class="hello" id="title_0-1">hello<a class="anchor" href="#title_0-1">&para;</a></h2>
     <h2 id="hello">hello<a class="anchor" href="#hello">&para;</a></h2>
-    <h2 id="title_0-2" class="hello">hello<a class="anchor" href="#title_0-2">&para;</a></h2>
-    <h2 id="title" class="hello class">hello<a class="anchor" href="#title">&para;</a></h2>
+    <h2 class="hello" id="title_0-2">hello<a class="anchor" href="#title_0-2">&para;</a></h2>
+    <h2 class="hello class" id="title">hello<a class="anchor" href="#title">&para;</a></h2>
     <BLANKLINE>
     """
 
@@ -609,11 +609,11 @@ def test_link_1():
     ... '''
     >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
-    <p><a href="/wiki/Page" class="inner">Hello world</a>
-     <a href="/wiki/Page#title" class="inner">Hello world</a>
-     <a href="/wiki/Page" class="inner">Hello world</a>
+    <p><a class="inner" href="/wiki/Page">Hello world</a>
+     <a class="inner" href="/wiki/Page#title">Hello world</a>
+     <a class="inner" href="/wiki/Page">Hello world</a>
     </p>
-    <p><img src="a.png" /> <div class="floatright"><img src="a.png" /></div> <img src="a.png"  width="250px"/> <Page> <a href="http://localhost:8000" class="outter">http://localhost:8000</a></p>
+    <p><img src="a.png" /> <div class="floatright"><img src="a.png" /></div> <img src="a.png"  width="250px"/> <Page> <a class="outter" href="http://localhost:8000">http://localhost:8000</a></p>
     <BLANKLINE>
     """
     
@@ -629,9 +629,9 @@ def test_link_2():
     ... '''
     >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
-    <p><a href="http://aaaa.com" class="outter">http://aaaa.com</a> <img src="http://aaaa.com"/>
-     <a href="page" class="inner">page</a> <a href="http://aaaa.com" class="outter">http://aaaa.com</a> <a href="/wiki/Page" class="inner">Page</a>
-     <a href="#edit" class="inner">
+    <p><a class="outter" href="http://aaaa.com">http://aaaa.com</a> <img src="http://aaaa.com"/>
+     <a class="inner" href="page">page</a> <a class="outter" href="http://aaaa.com">http://aaaa.com</a> <a class="inner" href="/wiki/Page">Page</a>
+     <a class="inner" href="#edit">
     </p>
     <BLANKLINE>
     """
@@ -827,17 +827,3 @@ def test_semantic_tabs():
     </div>
     """
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-

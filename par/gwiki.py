@@ -1,6 +1,5 @@
-from __future__ import absolute_import
-from future.builtins import map
-from future.builtins import range, bytes
+from __future__ import absolute_import, unicode_literals
+from ._compat import range, u
 from .pyPEG import *
 import re
 import types
@@ -94,8 +93,7 @@ class WikiGrammar(dict):
         return peg_rules, article
     
     def parse(self, text, root=None, skipWS=False, **kwargs):
-        if isinstance(text, bytes):
-            text = text.decode('utf8')
+        text = u(text)
         if not text:
             text = '\n'
         if text[-1] not in ('\r', '\n'):
@@ -196,7 +194,7 @@ class WikiHtmlVisitor(SimpleVisitor):
             else:
                 kw['class'] = _cls
             
-        attrs = ' '.join(['%s="%s"' % (x, y) for x, y in list(kw.items()) if y])
+        attrs = ' '.join(['%s="%s"' % (x, y) for x, y in sorted(kw.items()) if y])
         if attrs:
             attrs = ' ' + attrs
         nline = '\n' if newline else ''

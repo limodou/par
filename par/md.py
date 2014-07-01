@@ -1,9 +1,5 @@
-from __future__ import print_function
-from __future__ import unicode_literals
-from future.builtins import str
-from past.builtins import cmp
-from future import standard_library
-standard_library.install_hooks()
+from __future__ import print_function, unicode_literals
+from ._compat import u, string_types, import_
 #coding=utf8
 # Parsing Markdown
 # This version has some differences between Standard Markdown
@@ -186,7 +182,7 @@ class MarkdownGrammar(WikiGrammar):
         #  {% endblockname %}
         def new_block_args(): return 0, space, 0, (block_kwargs, -1, (_(r','), block_kwargs)), 0, space
         def new_block_name(): return _(r'([a-zA-Z_\-][a-zA-Z_\-0-9]*)')
-        def new_block_head(): return _(r'\{%'), 0, space, new_block_name, new_block_args, _r('%\}'), eol
+        def new_block_head(): return _(r'\{%'), 0, space, new_block_name, new_block_args, _(r'%\}'), eol
         def new_block_end(): return _(r'\{%'), 0, space, _(r'end\1'), 0, space, _(r'%\}'), eol
         def new_block_item(): return new_block_head, new_block_body, new_block_end
 #        def new_block(): return -2, new_block_item
@@ -292,7 +288,7 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         
     def parse_text(self, text, peg=None):
         g = self.grammar
-        if isinstance(peg, (str, str)):
+        if isinstance(peg, string_types):
             peg = g[peg]
         resultSoFar = []
         result, rest = g.parse(text, root=peg, resultSoFar=resultSoFar, skipWS=False)
@@ -377,7 +373,7 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
         for x in node.find_all('attr_def_class'):
             _cls.append(x.text[1:])
             
-        return self.tag('h'+str(level), title + anchor, id=_id, _class=' '.join(_cls))
+        return self.tag('h'+u(level), title + anchor, id=_id, _class=' '.join(_cls))
         
     def visit_title1(self, node):
         return self._get_title(node, 1)
@@ -525,8 +521,8 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
             float = 'left', 'right'
             width or height = '' will not set
         """
-        import future.moves.urllib.parse as urllib_parse
-        
+        urljoin = import_('urllib.parse', ['urljoin'], via='urlparse')
+
         t = node.text[2:-2].strip()
         type = 'wiki'
         begin = 0
@@ -549,7 +545,8 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
                 name = '#' + anchor    
             else:
                 name = _v
-            return self.tag('a', caption, href="%s" % urllib_parse.urljoin(_prefix, name))
+
+            return self.tag('a', caption, href="%s" % urljoin(_prefix, name))
         elif type == 'image':
             _v = (t.split('|') + ['', '', ''])[:4]
             filename, align, width, height = _v
@@ -842,5 +839,5 @@ def parseText(text, filename=None):
     g = MarkdownGrammar()
     resultSoFar = []
     result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
-    v = MarkdownTextVisitor(g, filename=filename)
+    v = SimpleVisitor(g, filename=filename)
     return v.visit(result, root=True)

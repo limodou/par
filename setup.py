@@ -25,7 +25,7 @@ from setuptools import setup
 import par
 
 setup(name='par',
-    version='1.2.1',
+    version='1.3',
     description="A simple structured text parser project",
     long_description=__doc__,
     classifiers=[
@@ -48,5 +48,4 @@ setup(name='par',
     license='BSD',
     include_package_data=True,
     zip_safe=False,
-    install_requires=['future']
 )

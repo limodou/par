@@ -1,9 +1,5 @@
-from __future__ import division
-from __future__ import unicode_literals
-from future.builtins import str
-from future.builtins import range
-from future.builtins import object
-from future.utils import python_2_unicode_compatible
+from __future__ import division, unicode_literals
+from ._compat import u, string_types, range, python_2_unicode_compatible
 
 # YPL parser 1.5
 
@@ -44,20 +40,20 @@ class Symbol(list):
     def __repr__(self):
         return str(self)
     def render(self, index=0):
-        if isinstance(self.what,str):
+        if isinstance(self.what,string_types):
             return u' '*2*index+'%s:%r\n' % (self.__name__, self.what)
         else:
             buf = []
             buf.append(u' '*2*index+'%s:\n' % self.__name__)
             for x in self.what:
-                if isinstance(x, str):
+                if isinstance(x, string_types):
                     buf.append(u' '*4*(index+1)+':%r\n' % x)
                 else:
                     buf.append(x.render(index+1))
         return u''.join(buf)
     def find(self, name):
         for x in self.what:
-            if isinstance(x, str):
+            if isinstance(x, string_types):
                 continue
             else:
                 if x.__name__ == name:
@@ -67,7 +63,7 @@ class Symbol(list):
                     return r
     def find_all(self, name):
         for x in self.what:
-            if isinstance(x, str):
+            if isinstance(x, string_types):
                 continue
             else:
                 if x.__name__ == name:
@@ -79,11 +75,11 @@ class Symbol(list):
     @property
     def text(self):
         buf = []
-        if isinstance(self.what, (str, str)):
+        if isinstance(self.what, string_types):
             buf.append(self.what)
         else:
             for node in self.what:
-                if isinstance(node, (str, str)):
+                if isinstance(node, string_types):
                     buf.append(node)
                 else:
                     buf.append(node.text)
@@ -208,7 +204,7 @@ class parser(object):
 
         pattern_type = type(pattern)
 
-        if isinstance(pattern_type, str):
+        if isinstance(pattern_type, string_types):
             if text[:len(pattern)] == pattern:
                 text = skip(self.skipper, text[len(pattern):], skipWS, skipComments)
                 return R(None, text)
