@@ -25,7 +25,7 @@ from setuptools import setup
 import par
 
 setup(name='par',
-    version='1.3',
+    version='1.3.1',
     description="A simple structured text parser project",
     long_description=__doc__,
     classifiers=[
