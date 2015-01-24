@@ -929,23 +929,10 @@ I get 10 times more traffic from [Google][] than from
 """
 
 text = '''
-a --
-    abc
-
-    ```
-    sss
-    ```
-
-    ccc
-
-b --c --
-    abc
-
-    ```
-    sss
-    ```
-
-    ccc
+* [] a
+    * [*] b
+    * <*> c
+    * < > d
 '''
 
 

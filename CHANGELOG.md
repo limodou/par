@@ -1,6 +1,11 @@
 Par ChangeLog
 ===============
 
+1.3.2
+---------
+* add checkbox and radio in list support
+* add grammer and visitor parameters in parseHtml and parseText
+
 1.3.1
 ---------
 * Fix bug

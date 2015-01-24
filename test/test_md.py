@@ -826,4 +826,34 @@ def test_semantic_tabs():
     </div>
     </div>
     """
-    
+
+def test_list_check_radio():
+    """
+    >>> text = '''
+    ... * [] a
+    ...    * [*] b
+    ...     * <*> c
+    ...     * < > d
+    ... * [] a
+    ...     * [*] b
+    ...     * <*> c
+    ...     * < > d
+    ... '''
+    >>> print (parseHtml(text, '%(body)s'))
+    <BLANKLINE>
+    <ul>
+    <li><input type="checkbox"></input> a</li>
+    <li><p><input type="checkbox" checked></input> b</p>
+    <ul>
+    <li><input type="radio" checked></input> c</li>
+    <li><input type="radio"></input> d</li>
+    </ul></li>
+    <li><p><input type="checkbox"></input> a</p>
+    <ul>
+    <li><input type="checkbox" checked></input> b</li>
+    <li><input type="radio" checked></input> c</li>
+    <li><input type="radio"></input> d</li>
+    </ul></li>
+    </ul>
+    <BLANKLINE>
+    """

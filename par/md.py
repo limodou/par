@@ -189,10 +189,11 @@ class MarkdownGrammar(WikiGrammar):
         def new_block(): return _(r'\{%\s*([a-zA-Z_\-][a-zA-Z_\-0-9]*)(.*?)%\}(.*?)\{%\s*end\1\s*%\}', re.DOTALL), eol
         
         #lists
+        def check_radio(): return _(r'\[[\* ]?\]|<[\* ]?>'), space
         def common_text(): return _(r'(?:[^\-\+#\r\n\*>\d]|(?:\*|\+|-)\S+|>\S+|\d+\.\S+)[^\r\n]*')
         def common_line(): return common_text, eol 
         def list_rest_of_line(): return _(r'.+'), eol
-        def list_first_para(): return list_rest_of_line, -1, (0, space, common_line), -1, blanklines
+        def list_first_para(): return 0, check_radio, list_rest_of_line, -1, (0, space, common_line), -1, blanklines
         def list_content_text(): return list_rest_of_line, -1, [list_content_norm_line, blankline]
         def list_content_line(): return _(r'[ \t]+([\*+\-]\S+|\d+\.[\S$]*|\d+[^\.]*|[^\-\+\r\n#>]).*')
         def list_content_lines(): return list_content_norm_line, -1, [list_content_indent_lines, blankline]
@@ -625,7 +626,18 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
     def visit_number_list_item(self, node):
         self.lists.append(('n', node.find('list_content')))
         return ''
-        
+
+    def visit_check_radio(self, node):
+        tag = []
+        if node.text[0] == '[':
+            tag.append('<input type="checkbox"')
+        else:
+            tag.append('<input type="radio"')
+        if node.text[1] == '*':
+            tag.append(' checked')
+        tag.append('\></input> ')
+        return ''.join(tag)
+
     def visit_lists_end(self, node):
         def process_node(n):
             txt = []
@@ -826,18 +838,22 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
             s.append('</ol></div>')
         return '\n'.join(s)
     
-def parseHtml(text, template=None, tag_class=None, block_callback=None, init_callback=None, filename=None):
+def parseHtml(text, template=None, tag_class=None, block_callback=None,
+              init_callback=None, filename=None, grammer=None, visitor=None):
     template = template or ''
     tag_class = tag_class or {}
-    g = MarkdownGrammar()
+    g = (grammer or MarkdownGrammar)()
     resultSoFar = []
     result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
-    v = MarkdownHtmlVisitor(template, tag_class, g, block_callback=block_callback, init_callback=init_callback, filename=filename)
+    v = (visitor or MarkdownHtmlVisitor)(template, tag_class, g,
+                                         block_callback=block_callback,
+                                         init_callback=init_callback,
+                                         filename=filename)
     return v.template(result)
     
-def parseText(text, filename=None):
-    g = MarkdownGrammar()
+def parseText(text, filename=None, grammer=None, visitor=None):
+    g = (grammer or MarkdownGrammar)()
     resultSoFar = []
     result, rest = g.parse(text, resultSoFar=resultSoFar, skipWS=False)
-    v = SimpleVisitor(g, filename=filename)
+    v = (visitor or SimpleVisitor)(g, filename=filename)
     return v.visit(result, root=True)
