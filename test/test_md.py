@@ -626,12 +626,14 @@ def test_link_2():
     ... <http://aaaa.com>
     ... [[Page]]
     ... [[#edit]]
+    ... [abc][cde]
     ... '''
     >>> print (parseHtml(text, '%(body)s'))
     <BLANKLINE>
     <p><a class="outter" href="http://aaaa.com">http://aaaa.com</a> <img src="http://aaaa.com"/>
      <a class="inner" href="page">page</a> <a class="outter" href="http://aaaa.com">http://aaaa.com</a> <a class="inner" href="/wiki/Page">Page</a>
      <a class="inner" href="#edit">
+     <a class="inner" href="#">abc</a>
     </p>
     <BLANKLINE>
     """
