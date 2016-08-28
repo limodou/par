@@ -1,6 +1,15 @@
 Par ChangeLog
 ===============
 
+1.3.4
+-----
+* Fix checkbox bug
+
+1.3.3
+-----
+* Fix link bug
+* Add radio, link test
+
 1.3.2
 ---------
 * add checkbox and radio in list support

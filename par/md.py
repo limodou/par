@@ -189,7 +189,7 @@ class MarkdownGrammar(WikiGrammar):
         def new_block(): return _(r'\{%\s*([a-zA-Z_\-][a-zA-Z_\-0-9]*)(.*?)%\}(.*?)\{%\s*end\1\s*%\}', re.DOTALL), eol
         
         #lists
-        def check_radio(): return _(r'\[[\* ]?\]|<[\* ]?>'), space
+        def check_radio(): return _(r'\[[\*Xx ]?\]|<[\*Xx ]?>'), space
         def common_text(): return _(r'(?:[^\-\+#\r\n\*>\d]|(?:\*|\+|-)\S+|>\S+|\d+\.\S+)[^\r\n]*')
         def common_line(): return common_text, eol 
         def list_rest_of_line(): return _(r'.+'), eol
@@ -633,7 +633,7 @@ class MarkdownHtmlVisitor(WikiHtmlVisitor):
             tag.append('<input type="checkbox"')
         else:
             tag.append('<input type="radio"')
-        if node.text[1] == '*':
+        if node.text[1] == '*' or node.text[1].upper() == 'X':
             tag.append(' checked')
         tag.append('\></input> ')
         return ''.join(tag)
